@@ -1,0 +1,10 @@
+{
+  "credentials": {
+    "client_id": "YOUR_CLIENT_ID",
+    "access_token": "YOUR_ACCESS_TOKEN"
+  },
+  "architectures_to_watch": {
+    "x86": "android-x86-opt",
+    "armv7_v15": "android-api-15-opt"
+  }
+}
