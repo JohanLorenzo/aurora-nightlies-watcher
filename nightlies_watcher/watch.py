@@ -32,13 +32,13 @@ def main(name=None):
     taskcluster.config['credentials']['accessToken'] = config['credentials']['access_token']
 
     while True:
-        run_if_new_builds_are_present(config['architectures_to_watch'])
+        run_if_new_builds_are_present(config['repository_to_watch'], config['architectures_to_watch'])
         time.sleep(config['watch_interval_in_seconds'])
 
 
-def run_if_new_builds_are_present(android_architectures):
+def run_if_new_builds_are_present(repository, android_architectures):
     logger.debug('Check if new builds are available')
-    latest_task_ids_per_achitecture = get_latest_task_ids_per_achitecture(android_architectures)
+    latest_task_ids_per_achitecture = get_latest_task_ids_per_achitecture(repository, android_architectures)
     logger.debug('Found these tasks: %s', latest_task_ids_per_achitecture)
 
     with open(os.path.join(CURRENT_DIRECTORY, 'data/last_tasks.json')) as f:
@@ -53,24 +53,28 @@ def run_if_new_builds_are_present(android_architectures):
         logger.info('Nothing to publish', latest_task_ids_per_achitecture)
 
 
-def get_latest_task_ids_per_achitecture(android_architectures):
+def get_latest_task_ids_per_achitecture(repository, android_architectures):
     return {
         pusk_apk_architecture_name: {
-            'task_id': get_latest_task_id(namespace_architecture_name)
+            'task_id': get_latest_task_id(repository, namespace_architecture_name)
         }
         for pusk_apk_architecture_name, namespace_architecture_name
         in android_architectures.items()
     }
 
 
-def get_latest_task_id(android_architecture):
-    namespace = get_full_name_space(android_architecture)
+def get_latest_task_id(repository, android_architecture):
+    namespace = get_full_name_space(repository, android_architecture)
     task = index.findTask(namespace)
     return task['taskId']
 
 
-def get_full_name_space(android_architecture):
-    return 'gecko.v2.mozilla-aurora.nightly.latest.mobile.{}'.format(android_architecture)
+def get_full_name_space(repository, android_architecture):
+    return 'gecko.v2.{}.nightly.latest.mobile.{}'.format(get_minimal_repository_name(repository), android_architecture)
+
+
+def get_minimal_repository_name(repository):
+    return repository.split('/')[-1]
 
 
 def have_all_tasks_never_been_published(task_ids_per_achitecture, last_published_task_ids_per_achitecture):
