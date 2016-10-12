@@ -7,9 +7,10 @@ import time
 
 from datetime import datetime, timedelta
 
+from nightlies_watcher.tc_index import get_latest_task_id
+
 logger = logging.getLogger(__name__)
 
-index = taskcluster.Index()
 queue = taskcluster.Queue()
 
 FENNEC_AURORA_APK_REGEX = re.compile(r'public/build/fennec-\d+.0a2.en-US.android.+\.apk')
@@ -61,20 +62,6 @@ def get_latest_task_ids_per_achitecture(repository, android_architectures):
         for pusk_apk_architecture_name, namespace_architecture_name
         in android_architectures.items()
     }
-
-
-def get_latest_task_id(repository, android_architecture):
-    namespace = get_full_name_space(repository, android_architecture)
-    task = index.findTask(namespace)
-    return task['taskId']
-
-
-def get_full_name_space(repository, android_architecture):
-    return 'gecko.v2.{}.nightly.latest.mobile.{}'.format(get_minimal_repository_name(repository), android_architecture)
-
-
-def get_minimal_repository_name(repository):
-    return repository.split('/')[-1]
 
 
 def have_all_tasks_never_been_published(task_ids_per_achitecture, last_published_task_ids_per_achitecture):
