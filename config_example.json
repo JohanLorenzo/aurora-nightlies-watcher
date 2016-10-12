@@ -6,5 +6,6 @@
   "architectures_to_watch": {
     "x86": "android-x86-opt",
     "armv7_v15": "android-api-15-opt"
-  }
+  },
+  "watch_interval_in_seconds": 60
 }

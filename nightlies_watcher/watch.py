@@ -33,7 +33,7 @@ def main(name=None):
 
     while True:
         run_if_new_builds_are_present(config['architectures_to_watch'])
-        time.sleep(60)
+        time.sleep(config['watch_interval_in_seconds'])
 
 
 def run_if_new_builds_are_present(android_architectures):
