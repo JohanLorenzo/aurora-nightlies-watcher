@@ -7,8 +7,10 @@ import time
 
 from datetime import datetime, timedelta
 
+from nightlies_watcher import treeherder
 from nightlies_watcher.tc_index import get_latest_task_id
 from nightlies_watcher.tc_queue import queue, get_revision
+
 
 logger = logging.getLogger(__name__)
 
@@ -41,20 +43,18 @@ def run_if_new_builds_are_present(repository, android_architectures):
     latest_task_definitions_per_achitecture = get_latest_task_definitions_per_achitecture(repository, android_architectures)
     logger.debug('Found these tasks: %s', latest_task_definitions_per_achitecture)
 
-    if (not do_all_tasks_have_same_revision(latest_task_definitions_per_achitecture)):
+    try:
+        revision = get_matching_revision(latest_task_definitions_per_achitecture)
+    except:
         logger.warn('Some of the tasks are not defined against the same revision', latest_task_definitions_per_achitecture)
         return
 
-    with open(os.path.join(CURRENT_DIRECTORY, 'data/last_tasks.json')) as f:
-        last_published_task_ids_per_achitecture = json.load(f)
-
-    logger.debug('Latest published tasks were: %s', last_published_task_ids_per_achitecture)
-
-    if have_all_tasks_never_been_published(latest_task_definitions_per_achitecture, last_published_task_ids_per_achitecture):
+    if treeherder.does_job_already_exist(repository, revision):
+        logger.info('Nothing to publish', latest_task_definitions_per_achitecture)
+    else:
         logger.info('New builds found, starting publishing: %s', latest_task_definitions_per_achitecture)
         publish(latest_task_definitions_per_achitecture)
-    else:
-        logger.info('Nothing to publish', latest_task_definitions_per_achitecture)
+
 
 
 def get_latest_task_definitions_per_achitecture(repository, android_architectures):
@@ -76,13 +76,16 @@ def get_latest_task_definitions_per_achitecture(repository, android_architecture
     }
 
 
-def do_all_tasks_have_same_revision(tasks_per_architecture):
+def get_matching_revision(tasks_per_architecture):
     revisions = [task['revision'] for _, task in tasks_per_architecture.items()]
     if len(revisions) == 0:
         raise Exception('No tasks given')
 
     first_revision_to_compare_to = revisions[0]
-    return all(revision == first_revision_to_compare_to for revision in revisions)
+    if (all(revision == first_revision_to_compare_to for revision in revisions)):
+        return first_revision_to_compare_to
+    else:
+        raise Exception('Not all tasks are defined against the same revision')
 
 
 def have_all_tasks_never_been_published(task_ids_per_achitecture, last_published_task_ids_per_achitecture):
@@ -98,7 +101,6 @@ def publish(tasks_data_per_architecture):
     created_task_id = taskcluster.slugId().decode('utf-8')
     result = queue.createTask(payload=task_payload, taskId=created_task_id)
     logger.debug('Created task %s: %s', created_task_id, result)
-    save_last_tasks(tasks_data_per_architecture)
 
 
 def get_artifact_urls(tasks_data_per_architecture):
@@ -155,11 +157,6 @@ def craft_task_data(tasks_data_per_architecture):
         ],
         'workerType': 'pushapk-v1'
     }
-
-
-def save_last_tasks(tasks_data_per_architecture):
-    with open(os.path.join(CURRENT_DIRECTORY, 'data/last_tasks.json'), 'w') as f:
-        json.dump(tasks_data_per_architecture, f)
 
 
 main(__name__)
