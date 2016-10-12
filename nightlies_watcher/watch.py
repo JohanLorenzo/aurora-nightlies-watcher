@@ -7,9 +7,6 @@ import time
 
 from datetime import datetime, timedelta
 
-FORMAT = '%(asctime)s - %(filename)s - %(levelname)s - %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.DEBUG)
-
 logger = logging.getLogger(__name__)
 
 index = taskcluster.Index()
@@ -24,6 +21,9 @@ PROJECT_DIRECTORY = os.path.join(CURRENT_DIRECTORY, '..')
 def main(name=None):
     if name not in ('__main__', None):
         return
+
+    FORMAT = '%(asctime)s - %(filename)s - %(levelname)s - %(message)s'
+    logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 
     with open(os.path.join(PROJECT_DIRECTORY, 'config.json')) as f:
         config = json.load(f)
