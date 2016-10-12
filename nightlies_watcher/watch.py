@@ -8,10 +8,9 @@ import time
 from datetime import datetime, timedelta
 
 from nightlies_watcher.tc_index import get_latest_task_id
+from nightlies_watcher.tc_queue import queue, get_revision
 
 logger = logging.getLogger(__name__)
-
-queue = taskcluster.Queue()
 
 FENNEC_AURORA_APK_REGEX = re.compile(r'public/build/fennec-\d+.0a2.en-US.android.+\.apk')
 
@@ -39,23 +38,27 @@ def main(name=None):
 
 def run_if_new_builds_are_present(repository, android_architectures):
     logger.debug('Check if new builds are available')
-    latest_task_ids_per_achitecture = get_latest_task_ids_per_achitecture(repository, android_architectures)
-    logger.debug('Found these tasks: %s', latest_task_ids_per_achitecture)
+    latest_task_definitions_per_achitecture = get_latest_task_definitions_per_achitecture(repository, android_architectures)
+    logger.debug('Found these tasks: %s', latest_task_definitions_per_achitecture)
+
+    if (not do_all_tasks_have_same_revision(latest_task_definitions_per_achitecture)):
+        logger.warn('Some of the tasks are not defined against the same revision', latest_task_definitions_per_achitecture)
+        return
 
     with open(os.path.join(CURRENT_DIRECTORY, 'data/last_tasks.json')) as f:
         last_published_task_ids_per_achitecture = json.load(f)
 
     logger.debug('Latest published tasks were: %s', last_published_task_ids_per_achitecture)
 
-    if have_all_tasks_never_been_published(latest_task_ids_per_achitecture, last_published_task_ids_per_achitecture):
-        logger.info('New builds found, starting publishing: %s', latest_task_ids_per_achitecture)
-        publish(latest_task_ids_per_achitecture)
+    if have_all_tasks_never_been_published(latest_task_definitions_per_achitecture, last_published_task_ids_per_achitecture):
+        logger.info('New builds found, starting publishing: %s', latest_task_definitions_per_achitecture)
+        publish(latest_task_definitions_per_achitecture)
     else:
-        logger.info('Nothing to publish', latest_task_ids_per_achitecture)
+        logger.info('Nothing to publish', latest_task_definitions_per_achitecture)
 
 
-def get_latest_task_ids_per_achitecture(repository, android_architectures):
-    return {
+def get_latest_task_definitions_per_achitecture(repository, android_architectures):
+    task_ids_per_achitecture = {
         pusk_apk_architecture_name: {
             'task_id': get_latest_task_id(repository, namespace_architecture_name)
         }
@@ -63,12 +66,30 @@ def get_latest_task_ids_per_achitecture(repository, android_architectures):
         in android_architectures.items()
     }
 
+    return {
+        architecture_name: {
+            'task_id': data['task_id'],
+            'revision': get_revision(data['task_id'])
+        }
+        for architecture_name, data
+        in task_ids_per_achitecture.items()
+    }
+
+
+def do_all_tasks_have_same_revision(tasks_per_architecture):
+    revisions = [task['revision'] for _, task in tasks_per_architecture.items()]
+    if len(revisions) == 0:
+        raise Exception('No tasks given')
+
+    first_revision_to_compare_to = revisions[0]
+    return all(revision == first_revision_to_compare_to for revision in revisions)
+
 
 def have_all_tasks_never_been_published(task_ids_per_achitecture, last_published_task_ids_per_achitecture):
-    return all([
+    return all(
         data['task_id'] != last_published_task_ids_per_achitecture[architecture]['task_id']
         for architecture, data in task_ids_per_achitecture.items()
-    ])
+    )
 
 
 def publish(tasks_data_per_architecture):
