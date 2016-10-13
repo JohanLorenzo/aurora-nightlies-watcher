@@ -23,6 +23,7 @@ setup(
     license="MPL2",
     install_requires=[
         "treeherder-client==3.1.0",
+        "requests==2.11.1",
         "taskcluster==0.3.4",
     ],
 )

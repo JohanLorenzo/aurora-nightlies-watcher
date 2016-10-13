@@ -7,7 +7,7 @@ import time
 
 from datetime import datetime, timedelta
 
-from nightlies_watcher import treeherder
+from nightlies_watcher import treeherder, hg_mozilla
 from nightlies_watcher.tc_index import get_latest_task_id
 from nightlies_watcher.tc_queue import queue, get_revision
 
@@ -53,8 +53,7 @@ def run_if_new_builds_are_present(repository, android_architectures):
         logger.info('Nothing to publish', latest_task_definitions_per_achitecture)
     else:
         logger.info('New builds found, starting publishing: %s', latest_task_definitions_per_achitecture)
-        publish(latest_task_definitions_per_achitecture)
-
+        publish(repository, revision, latest_task_definitions_per_achitecture)
 
 
 def get_latest_task_definitions_per_achitecture(repository, android_architectures):
@@ -95,10 +94,13 @@ def have_all_tasks_never_been_published(task_ids_per_achitecture, last_published
     )
 
 
-def publish(tasks_data_per_architecture):
+def publish(repository, revision, tasks_data_per_architecture):
+    hg_push_id = hg_mozilla.get_push_id(repository, revision)
     tasks_data_per_architecture = get_artifact_urls(tasks_data_per_architecture)
-    task_payload = craft_task_data(tasks_data_per_architecture)
+
+    task_payload = craft_task_data(repository, revision, hg_push_id, tasks_data_per_architecture)
     created_task_id = taskcluster.slugId().decode('utf-8')
+
     result = queue.createTask(payload=task_payload, taskId=created_task_id)
     logger.debug('Created task %s: %s', created_task_id, result)
 
@@ -128,7 +130,7 @@ def craft_artifact_url(task_id):
     return 'https://queue.taskcluster.net/v1/task/{}/artifacts/{}'.format(task_id, apk_artifacts[0])
 
 
-def craft_task_data(tasks_data_per_architecture):
+def craft_task_data(repository, revision, hg_push_id, tasks_data_per_architecture):
     curent_datetime = datetime.utcnow()
     apks = {architecture: data['artifact_url'] for architecture, data in tasks_data_per_architecture.items()}
 
@@ -136,7 +138,21 @@ def craft_task_data(tasks_data_per_architecture):
         'created': curent_datetime,
         'deadline': curent_datetime + timedelta(hours=1),
         'dependencies': [data['task_id'] for _, data in tasks_data_per_architecture.items()],
-        'extra': {},
+        'extra': {
+            'treeherder': {
+                'reason': 'The Nightly scheduler named "nightlies-watcher" triggered this build',
+                'tier': 3,
+                'groupName': 'Publisher',
+                'groupSymbol': 'pub',
+                'symbol': 'gp',
+                'collection': {
+                    'opt': True
+                },
+                'machine': {
+                    'platform': 'Android'
+                },
+            },
+        },
         'metadata': {
             'name': 'Google Play Publisher',
             'description': 'Publishes Aurora builds to Google Play Store',
@@ -151,7 +167,7 @@ def craft_task_data(tasks_data_per_architecture):
         'provisionerId': 'scriptworker-prov-v1',
         'requires': 'all-completed',
         'retries': 0,
-        'routes': [],
+        'routes': treeherder.get_routes(repository, revision, hg_push_id),
         'scopes': [
             'project:releng:googleplay:aurora'
         ],
