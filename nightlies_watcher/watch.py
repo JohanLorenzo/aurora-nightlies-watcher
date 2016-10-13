@@ -173,17 +173,15 @@ def craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture):
         },
         'payload': {
             'apks': apks,
-            'google_play_track': 'alpha',
+            'google_play_track': task_config['google_play_track'],
             'maxRunTime': 600,
         },
-        'provisionerId': 'scriptworker-prov-v1',
+        'provisionerId': task_config['provisioner_id'],
         'requires': 'all-completed',
         'retries': 0,
         'routes': treeherder.get_routes(config['repository_to_watch'], revision, hg_push_id),
-        'scopes': [
-            'project:releng:googleplay:aurora',
-        ],
-        'workerType': 'pushapk-v1',
+        'scopes': task_config['scopes'],
+        'workerType': task_config['worker_type'],
     }
 
 
