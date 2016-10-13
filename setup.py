@@ -4,13 +4,16 @@ from setuptools import setup, find_packages
 with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'version.txt')) as f:
     version = f.read().rstrip()
 
+with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'source_url.txt')) as f:
+    source_url = f.read().rstrip()
+
 setup(
     name="nightlies-watcher",
     version=version,
     description="Watches Aurora nightlies and creates tasks to deploy them to Google Play Store",
     author="Mozilla Release Engineering",
     author_email="release+python@mozilla.com",
-    url="https://github.com/mozilla-releng/nightlies-watcher",
+    url=source_url,
     packages=find_packages(),
     package_data={"nightlies-watcher": ["data/*"]},
     include_package_data=True,

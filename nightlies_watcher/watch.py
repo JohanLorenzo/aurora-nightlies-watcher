@@ -19,6 +19,9 @@ FENNEC_AURORA_APK_REGEX = re.compile(r'public/build/fennec-\d+.0a2.en-US.android
 CURRENT_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 PROJECT_DIRECTORY = os.path.join(CURRENT_DIRECTORY, '..')
 
+with open(os.path.join(PROJECT_DIRECTORY, 'source_url.txt')) as f:
+    source_url = f.read().rstrip()
+
 
 def main(name=None):
     if name not in ('__main__', None):
@@ -34,13 +37,17 @@ def main(name=None):
     taskcluster.config['credentials']['accessToken'] = config['credentials']['access_token']
 
     while True:
-        run_if_new_builds_are_present(config['repository_to_watch'], config['architectures_to_watch'])
+        run_if_new_builds_are_present(config)
         time.sleep(config['watch_interval_in_seconds'])
 
 
-def run_if_new_builds_are_present(repository, android_architectures):
+def run_if_new_builds_are_present(config):
+    repository = config['repository_to_watch']
+
     logger.debug('Check if new builds are available')
-    latest_task_definitions_per_achitecture = get_latest_task_definitions_per_achitecture(repository, android_architectures)
+    latest_task_definitions_per_achitecture = get_latest_task_definitions_per_achitecture(
+        repository, config['architectures_to_watch']
+    )
     logger.debug('Found these tasks: %s', latest_task_definitions_per_achitecture)
 
     try:
@@ -49,11 +56,13 @@ def run_if_new_builds_are_present(repository, android_architectures):
         logger.warn('Some of the tasks are not defined against the same revision', latest_task_definitions_per_achitecture)
         return
 
-    if treeherder.does_job_already_exist(repository, revision):
+    if treeherder.does_job_already_exist(
+        repository, revision, job_name=config['task']['name'], tier=config['task']['treeherder']['tier']
+    ):
         logger.info('Nothing to publish', latest_task_definitions_per_achitecture)
     else:
         logger.info('New builds found, starting publishing: %s', latest_task_definitions_per_achitecture)
-        publish(repository, revision, latest_task_definitions_per_achitecture)
+        publish(config, revision, latest_task_definitions_per_achitecture)
 
 
 def get_latest_task_definitions_per_achitecture(repository, android_architectures):
@@ -94,11 +103,11 @@ def have_all_tasks_never_been_published(task_ids_per_achitecture, last_published
     )
 
 
-def publish(repository, revision, tasks_data_per_architecture):
-    hg_push_id = hg_mozilla.get_push_id(repository, revision)
+def publish(config, revision, tasks_data_per_architecture):
+    hg_push_id = hg_mozilla.get_push_id(config['repository_to_watch'], revision)
     tasks_data_per_architecture = get_artifact_urls(tasks_data_per_architecture)
 
-    task_payload = craft_task_data(repository, revision, hg_push_id, tasks_data_per_architecture)
+    task_payload = craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture)
     created_task_id = taskcluster.slugId().decode('utf-8')
 
     result = queue.createTask(payload=task_payload, taskId=created_task_id)
@@ -130,9 +139,12 @@ def craft_artifact_url(task_id):
     return 'https://queue.taskcluster.net/v1/task/{}/artifacts/{}'.format(task_id, apk_artifacts[0])
 
 
-def craft_task_data(repository, revision, hg_push_id, tasks_data_per_architecture):
+def craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture):
     curent_datetime = datetime.utcnow()
     apks = {architecture: data['artifact_url'] for architecture, data in tasks_data_per_architecture.items()}
+
+    task_config = config['task']
+    treeherder_config = task_config['treeherder']
 
     return {
         'created': curent_datetime,
@@ -140,38 +152,38 @@ def craft_task_data(repository, revision, hg_push_id, tasks_data_per_architectur
         'dependencies': [data['task_id'] for _, data in tasks_data_per_architecture.items()],
         'extra': {
             'treeherder': {
-                'reason': 'The Nightly scheduler named "nightlies-watcher" triggered this build',
-                'tier': 3,
-                'groupName': 'Publisher',
-                'groupSymbol': 'pub',
-                'symbol': 'gp',
+                'reason': treeherder_config['reason'],
+                'tier': treeherder_config['tier'],
+                'groupName': treeherder_config['group_name'],
+                'groupSymbol': treeherder_config['group_symbol'],
+                'symbol': treeherder_config['symbol'],
                 'collection': {
-                    'opt': True
+                    'opt': treeherder_config['is_opt']
                 },
                 'machine': {
-                    'platform': 'Android'
+                    'platform': treeherder_config['platform']
                 },
             },
         },
         'metadata': {
-            'name': 'Google Play Publisher',
-            'description': 'Publishes Aurora builds to Google Play Store',
-            'owner': 'release@mozilla.com',
-            'source': 'https://github.com/JohanLorenzo/nightlies-watcher'
+            'name': task_config['name'],
+            'description': task_config['description'],
+            'owner': task_config['owner'],
+            'source': source_url,
         },
         'payload': {
             'apks': apks,
             'google_play_track': 'alpha',
-            'maxRunTime': 600
+            'maxRunTime': 600,
         },
         'provisionerId': 'scriptworker-prov-v1',
         'requires': 'all-completed',
         'retries': 0,
-        'routes': treeherder.get_routes(repository, revision, hg_push_id),
+        'routes': treeherder.get_routes(config['repository_to_watch'], revision, hg_push_id),
         'scopes': [
-            'project:releng:googleplay:aurora'
+            'project:releng:googleplay:aurora',
         ],
-        'workerType': 'pushapk-v1'
+        'workerType': 'pushapk-v1',
     }
 
 
