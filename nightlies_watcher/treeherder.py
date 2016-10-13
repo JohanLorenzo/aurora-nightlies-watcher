@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 client = TreeherderClient()
 
 
-def does_job_already_exist(repository, revision):
+def does_job_already_exist(repository, revision, job_name, tier=1):
     minimal_repo_name = get_minimal_repository_name(repository)
 
     resultsets = client.get_resultsets(
@@ -21,9 +21,9 @@ def does_job_already_exist(repository, revision):
     elif len(resultsets) != 1:
         raise Exception('More than 1 result matches revision {} in repository {}'.format(revision, repository))
 
-    jobs = client.get_jobs(minimal_repo_name, count=10000, result_set_id=resultsets[0]['id'])
+    jobs = client.get_jobs(minimal_repo_name, count=2000, result_set_id=resultsets[0]['id'], tier=tier)
 
-    return _is_job_in_list(jobs, 'Google Play Publisher')
+    return _is_job_in_list(jobs, job_name)
 
 
 def _is_job_in_list(jobs, expected_job_name):
