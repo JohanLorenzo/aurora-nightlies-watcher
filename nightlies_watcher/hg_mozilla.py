@@ -6,7 +6,7 @@ def get_minimal_repository_name(repository):
 
 
 def get_push_id(repository, revision):
-    response = requests.get(_get_push_log_url(repository, revision))
+    response = requests.get(_get_push_log_url(repository, revision), timeout=10)
     return _pluck_push_id(response.json(), revision)
 
 

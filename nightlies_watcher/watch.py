@@ -85,8 +85,8 @@ def get_latest_task_definitions_per_achitecture(repository, android_architecture
 
 
 def get_matching_revision(tasks_per_architecture):
-    revisions = [task['revision'] for _, task in tasks_per_architecture.items()]
-    if len(revisions) == 0:
+    revisions = [task['revision'] for task in tasks_per_architecture.values()]
+    if not revisions:
         raise Exception('No tasks given')
 
     first_revision_to_compare_to = revisions[0]
