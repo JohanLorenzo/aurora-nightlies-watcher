@@ -4,11 +4,26 @@ from nightlies_watcher.hg_mozilla import get_minimal_repository_name
 _index = Index()
 
 
-def get_latest_task_id(repository, android_architecture):
-    namespace = _get_full_name_space(repository, android_architecture)
+def get_task_id(repository, revision, android_architecture):
+    namespace = craft_full_namespace(repository, android_architecture)
     task = _index.findTask(namespace)
     return task['taskId']
 
 
-def _get_full_name_space(repository, android_architecture):
-    return 'gecko.v2.{}.nightly.latest.mobile.{}'.format(get_minimal_repository_name(repository), android_architecture)
+def craft_full_namespace(repository, android_architecture, revision='latest'):
+    revision = revision if revision == 'latest' else 'revision.{}'.format(revision)
+
+    return 'gecko.v2.{repo}.nightly.{revision_or_latest}.mobile.{architecture}'.format(
+        repo=get_minimal_repository_name(repository),
+        revision_or_latest=revision,
+        architecture=android_architecture
+    )
+
+
+def is_task_compeleted(namespace):
+    try:
+        _index.findTask(namespace)
+        return True
+    except:
+        # TODO Less broad exception
+        return False
