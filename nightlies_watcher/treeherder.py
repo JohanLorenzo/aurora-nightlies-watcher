@@ -23,7 +23,8 @@ def does_job_already_exist(repository, revision, job_name, tier=1):
 
     jobs = client.get_jobs(minimal_repo_name, count=2000, result_set_id=resultsets[0]['id'], tier=tier)
 
-    return _is_job_in_list(jobs, job_name)
+    # return _is_job_in_list(jobs, job_name)
+    return False
 
 
 def _is_job_in_list(jobs, expected_job_name):

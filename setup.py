@@ -25,6 +25,8 @@ setup(
     },
     license="MPL2",
     install_requires=[
+        "aioamqp==0.8.2",
+        "frozendict==1.2",
         "treeherder-client==3.1.0",
         "requests==2.11.1",
         "taskcluster==0.3.4",
