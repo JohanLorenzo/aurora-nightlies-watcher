@@ -1,0 +1,9 @@
+include LICENSE
+include README.rst
+include config_example.json
+include version.txt
+include source_url.txt
+include requirements*.txt
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
