@@ -5,16 +5,14 @@ _index = Index()
 
 
 def get_task_id(repository, revision, android_architecture):
-    namespace = craft_full_namespace(repository, android_architecture)
+    namespace = _craft_full_namespace(repository, revision, android_architecture)
     task = _index.findTask(namespace)
     return task['taskId']
 
 
-def craft_full_namespace(repository, android_architecture, revision='latest'):
-    revision = revision if revision == 'latest' else 'revision.{}'.format(revision)
-
-    return 'gecko.v2.{repo}.nightly.{revision_or_latest}.mobile.{architecture}'.format(
+def _craft_full_namespace(repository, revision, android_architecture):
+    return 'gecko.v2.{repo}.nightly.revision.{revision}.mobile.{architecture}'.format(
         repo=get_minimal_repository_name(repository),
-        revision_or_latest=revision,
+        revision=revision,
         architecture=android_architecture
     )
