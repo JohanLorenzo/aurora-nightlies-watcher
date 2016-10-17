@@ -20,7 +20,7 @@ setup(
     zip_safe=False,
     entry_points={
         "console_scripts": [
-            "nightlies-watcher = nightlies_watcher.watch:main",
+            "nightlies-watcher = nightlies_watcher.main:main",
         ],
     },
     license="MPL2",

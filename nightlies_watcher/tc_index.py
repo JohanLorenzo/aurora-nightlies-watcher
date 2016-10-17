@@ -18,12 +18,3 @@ def craft_full_namespace(repository, android_architecture, revision='latest'):
         revision_or_latest=revision,
         architecture=android_architecture
     )
-
-
-def is_task_compeleted(namespace):
-    try:
-        _index.findTask(namespace)
-        return True
-    except:
-        # TODO Less broad exception
-        return False
