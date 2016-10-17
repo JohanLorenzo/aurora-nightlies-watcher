@@ -11,3 +11,8 @@ class TooManyPushIdsError(Exception):
 class UnmatchedRouteError(Exception):
     def __init__(self, field_name, task_definition):
         super().__init__('No {} was found in the routes of: {}'.format(field_name, task_definition))
+
+
+class NotOnlyOneApkError(Exception):
+    def __init__(self, matched_artifacts):
+        super().__init__('Not only one artifact matches the APK regex. Matched artifacts: {}'.format(matched_artifacts))
