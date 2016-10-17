@@ -1,5 +1,7 @@
 import requests
 
+from nightlies_watcher.exceptions import NoPushIdError, TooManyPushIdsError
+
 
 def get_minimal_repository_name(repository):
     return repository.split('/')[-1]
@@ -18,8 +20,8 @@ def _pluck_push_id(push_log_json, revision):
     push_log_ids = tuple(push_log_json.keys())
 
     if len(push_log_ids) == 0:
-        raise Exception('No push ID matches revision {}'.format(revision))
+        raise NoPushIdError(revision)
     elif len(push_log_ids) != 1:
-        raise Exception('More than one push ID match revision {}'.format(revision))
+        raise TooManyPushIdsError(revision)
 
     return push_log_ids[0]
