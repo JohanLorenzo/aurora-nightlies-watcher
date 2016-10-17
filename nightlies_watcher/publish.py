@@ -6,6 +6,7 @@ import taskcluster
 from datetime import datetime, timedelta
 
 from nightlies_watcher import treeherder, hg_mozilla
+from nightlies_watcher.directories import PROJECT_DIRECTORY
 from nightlies_watcher.tc_queue import queue
 
 
@@ -13,9 +14,6 @@ logger = logging.getLogger(__name__)
 
 FENNEC_AURORA_APK_REGEX = re.compile(r'public/build/fennec-\d+.0a2.en-US.android.+\.apk')
 
-# TODO avoid duplication
-CURRENT_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
-PROJECT_DIRECTORY = os.path.join(CURRENT_DIRECTORY, '..')
 
 with open(os.path.join(PROJECT_DIRECTORY, 'source_url.txt')) as f:
     source_url = f.read().rstrip()
