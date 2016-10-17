@@ -3,7 +3,7 @@ import logging
 import os
 import taskcluster
 
-from nightlies_watcher.config import config
+from nightlies_watcher.config import get_config
 from nightlies_watcher.worker import worker
 
 event_loop = asyncio.get_event_loop()
@@ -22,6 +22,8 @@ def main(name):
     FORMAT = '%(asctime)s - %(filename)s - %(levelname)s - %(message)s'
     logging.basicConfig(format=FORMAT, level=logging.INFO)
     # logging.getLogger('taskcluster').setLevel(logging.WARNING)
+
+    config = get_config()
 
     taskcluster.config['credentials']['clientId'] = config['credentials']['client_id']
     taskcluster.config['credentials']['accessToken'] = config['credentials']['access_token']
