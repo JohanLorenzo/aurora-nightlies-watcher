@@ -4,13 +4,21 @@ from taskcluster import Queue
 
 from nightlies_watcher.exceptions import UnmatchedRouteError
 
-queue = Queue()
+_queue = Queue()
 
 ROUTE_MATCHER = re.compile(r'index.gecko.v2.([^.]+).nightly.revision.([^.]+).mobile.([^.]+)')
 
 
 def fetch_task_definition(task_id):
-    return queue.task(task_id)
+    return _queue.task(task_id)
+
+
+def fetch_artifacts_list(task_id):
+    return _queue.listLatestArtifacts(task_id)['artifacts']
+
+
+def create_task(payload, task_id):
+    return _queue.createTask(payload=payload, taskId=task_id)
 
 
 def pluck_repository(task_definition):

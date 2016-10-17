@@ -1,6 +1,6 @@
 import pytest
 
-from nightlies_watcher.tc_queue import fetch_task_definition, pluck_architecture, pluck_repository, pluck_revision, queue
+from nightlies_watcher.tc_queue import fetch_task_definition, pluck_architecture, pluck_repository, pluck_revision, _queue, fetch_artifacts_list, create_task
 from nightlies_watcher.exceptions import UnmatchedRouteError
 
 TASK_DEFINITION = {
@@ -41,5 +41,46 @@ def test_pluck_architecture():
 
 
 def test_fetch_task_definition(monkeypatch):
-    monkeypatch.setattr(queue, 'task', lambda _: TASK_DEFINITION)
+    monkeypatch.setattr(_queue, 'task', lambda _: TASK_DEFINITION)
     assert fetch_task_definition('VRzn3vi6RvSNaKTaT5u83A') == TASK_DEFINITION
+
+
+def test_fetch_artifacts_list(monkeypatch):
+    artifacts = [{
+        'contentType': 'application/json',
+        'storageType': 's3',
+        'name': 'public/build/buildbot_properties.json',
+        'expires': '2017-10-14T09:07:47.161Z'
+    }, {
+        'contentType': 'application/octet-stream',
+        'storageType': 's3',
+        'name': 'public/build/fennec-51.0a2.en-US.android-arm.apk',
+        'expires': '2017-10-14T08:57:10.154Z'
+    }]
+
+    monkeypatch.setattr(_queue, 'listLatestArtifacts', lambda _: {
+        'artifacts': artifacts,
+    })
+    assert fetch_artifacts_list('VRzn3vi6RvSNaKTaT5u83A') == artifacts
+
+
+def test_create_task(monkeypatch):
+    created_task_data = {
+        'status': {
+            'provisionerId': 'dummy-provisioner',
+            'taskGroupId': 'LBrUAO8NRDmFbv5JMrm3vQ',
+            'state': 'pending',
+            'workerType': 'dummy-worker',
+            'retriesLeft': 0,
+            'schedulerId': '-',
+            'taskId': 'LBrUAO8NRDmFbv5JMrm3vQ',
+            'deadline': '2016-10-17T17:43:47.961Z',
+            'expires': '2017-10-17T17:43:47.961Z',
+            'runs': [
+                {'scheduled': '2016-10-17T16:43:49.669Z', 'state': 'pending', 'reasonCreated': 'scheduled', 'runId': 0}
+            ],
+        },
+    }
+
+    monkeypatch.setattr(_queue, 'createTask', lambda payload, taskId: created_task_data)
+    assert create_task(payload={}, task_id='LBrUAO8NRDmFbv5JMrm3vQ') == created_task_data

@@ -1,13 +1,12 @@
+import datetime
 import logging
 import os
 import re
 import taskcluster
 
-from datetime import datetime, timedelta
-
-from nightlies_watcher import treeherder, hg_mozilla
+from nightlies_watcher import treeherder, hg_mozilla, tc_queue
 from nightlies_watcher.directories import PROJECT_DIRECTORY
-from nightlies_watcher.tc_queue import queue
+from nightlies_watcher.exceptions import NotOnlyOneApkError
 
 
 logger = logging.getLogger(__name__)
@@ -20,43 +19,66 @@ with open(os.path.join(PROJECT_DIRECTORY, 'source_url.txt')) as f:
 
 
 def publish(config, revision, tasks_data_per_architecture):
+    tasks_data_per_architecture = _fetch_artifacts(tasks_data_per_architecture)
+    tasks_data_per_architecture = _filter_right_artifacts(tasks_data_per_architecture)
+    tasks_data_per_architecture = _craft_artifact_urls(tasks_data_per_architecture)
+
     hg_push_id = hg_mozilla.get_push_id(config['repository_to_watch'], revision)
-    tasks_data_per_architecture = get_artifact_urls(tasks_data_per_architecture)
+    task_payload = _craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture)
 
-    task_payload = craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture)
     created_task_id = taskcluster.slugId().decode('utf-8')
-
-    result = queue.createTask(payload=task_payload, taskId=created_task_id)
+    result = tc_queue.create_task(task_payload, created_task_id)
     logger.info('Created task %s: %s', created_task_id, result)
 
 
-def get_artifact_urls(tasks_data_per_architecture):
+def _fetch_artifacts(tasks_data_per_architecture):
     return {
         architecture: {
             'task_id': data['task_id'],
-            'artifact_url': craft_artifact_url(data['task_id']),
+            'all_artifacts': tc_queue.fetch_artifacts_list(data['task_id']),
         }
         for architecture, data in tasks_data_per_architecture.items()
     }
 
 
-def craft_artifact_url(task_id):
-    latest_artifacts = queue.listLatestArtifacts(task_id)
+def _filter_right_artifacts(tasks_data_per_architecture):
+    return {
+        architecture: {
+            'task_id': data['task_id'],
+            'target_artifact': _pick_valid_artifact(data),
+        }
+        for architecture, data in tasks_data_per_architecture.items()
+    }
+
+
+def _pick_valid_artifact(task_data):
     apk_artifacts = [
         artifact['name']
-        for artifact in latest_artifacts['artifacts']
+        for artifact in task_data['all_artifacts']
         if FENNEC_AURORA_APK_REGEX.match(artifact['name']) is not None
     ]
 
     logger.debug(apk_artifacts)
     if len(apk_artifacts) != 1:
-        raise Exception('Not only one artifact matches the APK regex. Artifacts: {}'.format(apk_artifacts))
+        raise NotOnlyOneApkError(apk_artifacts)
 
-    return 'https://queue.taskcluster.net/v1/task/{}/artifacts/{}'.format(task_id, apk_artifacts[0])
+    return apk_artifacts[0]
 
 
-def craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture):
-    curent_datetime = datetime.utcnow()
+def _craft_artifact_urls(tasks_data_per_architecture):
+    return {
+        architecture: {
+            'task_id': data['task_id'],
+            'artifact_url': 'https://queue.taskcluster.net/v1/task/{}/artifacts/{}'.format(
+                data['task_id'], data['target_artifact']
+            ),
+        }
+        for architecture, data in tasks_data_per_architecture.items()
+    }
+
+
+def _craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture):
+    curent_datetime = datetime.datetime.utcnow()
     apks = {architecture: data['artifact_url'] for architecture, data in tasks_data_per_architecture.items()}
 
     task_config = config['task']
@@ -64,8 +86,9 @@ def craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture):
 
     return {
         'created': curent_datetime,
-        'deadline': curent_datetime + timedelta(hours=1),
-        'dependencies': [data['task_id'] for _, data in tasks_data_per_architecture.items()],
+        'deadline': curent_datetime + datetime.timedelta(hours=1),
+        # Sorting dependencies has no value for Taskcluster, but it makes output deterministic (used by tests)
+        'dependencies': sorted(data['task_id'] for data in tasks_data_per_architecture.values()),
         'extra': {
             'treeherder': {
                 'reason': treeherder_config['reason'],
