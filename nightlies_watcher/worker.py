@@ -4,12 +4,13 @@ import json
 
 from nightlies_watcher import tc_queue, tc_index
 from nightlies_watcher.publish import publish
-from nightlies_watcher.config import config
+from nightlies_watcher.config import get_config
 
 
 log = logging.getLogger(__name__)
 
 async def worker():
+    config = get_config()
     log.warn(config)
 
     pulse_config = config['pulse']
@@ -44,6 +45,8 @@ async def worker():
 
 
 async def _dispatch(channel, body, envelope, properties):
+    config = get_config()
+
     body = json.loads(body.decode("utf-8"))
     log.debug(channel, body, envelope, properties)
     task_id = body['status']['taskId']
