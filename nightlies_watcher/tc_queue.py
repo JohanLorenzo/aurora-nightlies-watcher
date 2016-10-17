@@ -2,6 +2,8 @@ import re
 
 from taskcluster import Queue
 
+from nightlies_watcher.exceptions import UnmatchedRouteError
+
 queue = Queue()
 
 ROUTE_MATCHER = re.compile(r'index.gecko.v2.([^.]+).nightly.revision.([^.]+).mobile.([^.]+)')
@@ -31,6 +33,6 @@ def _match_field_in_routes(task_definition, field_name, field_number):
     ]
 
     if len(matched_things) == 0:
-        raise Exception('No {} was found in the routes of: {}'.format(field_name, task_definition))
+        raise UnmatchedRouteError(field_name, task_definition)
 
     return matched_things[0]
