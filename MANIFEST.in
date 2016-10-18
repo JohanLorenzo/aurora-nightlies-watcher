@@ -1,3 +1,5 @@
+recursive-include nightlies_watcher/data *
+
 include LICENSE
 include README.rst
 include config_example.json

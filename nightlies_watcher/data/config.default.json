@@ -1,0 +1,35 @@
+{
+  "architectures_to_watch": {
+    "x86": "android-x86-opt",
+    "armv7_v15": "android-api-15-opt"
+  },
+  "task": {
+    "name": "Google Play Publisher",
+    "description": "Publishes Aurora builds to Google Play Store",
+    "owner": "dummy@nightlies-watcher.tld",
+    "treeherder": {
+      "platform": "Android",
+      "group_name": "Publisher",
+      "group_symbol": "pub",
+      "symbol": "gp",
+      "reason": "The dummy Nightly scheduler named 'nightlies-watcher' triggered this build",
+      "tier": 3,
+      "is_opt": true
+    },
+    "provisioner_id": "dummy-provisioner",
+    "worker_type": "dummy-worker",
+    "scopes": ["dummy:scope"],
+    "google_play_track": "alpha"
+  },
+  "pulse": {
+    "host": "pulse.m.o",
+    "port": "5671",
+    "user": "dummy-user",
+    "password": "dummy-password",
+    "queue": "dummy-queue",
+    "exchanges": [{
+      "path": "exchange/taskcluster-queue/v1/task-completed",
+      "routing_keys": ["route.index.gecko.v2.mozilla-aurora.nightly.latest.mobile.#"]
+    }]
+  }
+}
