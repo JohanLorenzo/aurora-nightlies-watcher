@@ -25,6 +25,5 @@
     "scopes": ["project:releng:googleplay:aurora"],
     "google_play_track": "alpha"
   },
-  "repository_to_watch": "releases/mozilla-aurora",
   "watch_interval_in_seconds": 60
 }

@@ -4,7 +4,7 @@ import os
 import re
 import taskcluster
 
-from nightlies_watcher import treeherder, hg_mozilla, tc_queue
+from nightlies_watcher import treeherder, hg_mozilla, tc_index, tc_queue
 from nightlies_watcher.directories import PROJECT_DIRECTORY
 from nightlies_watcher.exceptions import NotOnlyOneApkError
 
@@ -18,17 +18,28 @@ with open(os.path.join(PROJECT_DIRECTORY, 'source_url.txt')) as f:
     source_url = f.read().rstrip()
 
 
-def publish(config, revision, tasks_data_per_architecture):
+def publish(config, repository, revision):
+    tasks_data_per_architecture = _fetch_task_ids_per_achitecture(repository, revision, config['architectures_to_watch'])
     tasks_data_per_architecture = _fetch_artifacts(tasks_data_per_architecture)
     tasks_data_per_architecture = _filter_right_artifacts(tasks_data_per_architecture)
     tasks_data_per_architecture = _craft_artifact_urls(tasks_data_per_architecture)
 
-    hg_push_id = hg_mozilla.get_push_id(config['repository_to_watch'], revision)
-    task_payload = _craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture)
+    hg_push_id = hg_mozilla.get_push_id(repository, revision)
+    task_payload = _craft_task_data(config, repository, revision, hg_push_id, tasks_data_per_architecture)
 
     created_task_id = taskcluster.slugId().decode('utf-8')
     result = tc_queue.create_task(task_payload, created_task_id)
     logger.info('Created task %s: %s', created_task_id, result)
+
+
+def _fetch_task_ids_per_achitecture(repository, target_revision, android_architectures_definition):
+    return {
+        pusk_apk_architecture_name: {
+            'task_id': tc_index.get_task_id(repository, target_revision, tc_namespace_architecture_name)
+        }
+        for pusk_apk_architecture_name, tc_namespace_architecture_name
+        in android_architectures_definition.items()
+    }
 
 
 def _fetch_artifacts(tasks_data_per_architecture):
@@ -77,7 +88,7 @@ def _craft_artifact_urls(tasks_data_per_architecture):
     }
 
 
-def _craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture):
+def _craft_task_data(config, repository, revision, hg_push_id, tasks_data_per_architecture):
     curent_datetime = datetime.datetime.utcnow()
     apks = {architecture: data['artifact_url'] for architecture, data in tasks_data_per_architecture.items()}
 
@@ -118,7 +129,7 @@ def _craft_task_data(config, revision, hg_push_id, tasks_data_per_architecture):
         'requires': 'all-completed',
         # Number of retries is forced (aka not configurable), in order to make sure we don't push the same APK twice
         'retries': 0,
-        'routes': treeherder.get_routes(config['repository_to_watch'], revision, hg_push_id),
+        'routes': treeherder.get_routes(repository, revision, hg_push_id),
         'scopes': task_config['scopes'],
         'workerType': task_config['worker_type'],
     }

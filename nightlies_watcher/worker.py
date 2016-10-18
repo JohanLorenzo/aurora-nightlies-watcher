@@ -2,7 +2,7 @@ import aioamqp
 import logging
 import json
 
-from nightlies_watcher import tc_queue, tc_index
+from nightlies_watcher import tc_queue
 from nightlies_watcher.publish import publish
 from nightlies_watcher.config import get_config
 
@@ -55,11 +55,7 @@ async def _dispatch(channel, body, envelope, properties):
         task_definition = tc_queue.fetch_task_definition(task_id)
         revision = tc_queue.pluck_revision(task_definition)
         repository = tc_queue.pluck_repository(task_definition)
-
-        task_ids_per_achitecture = get_task_ids_per_achitecture(
-            repository, revision, config['architectures_to_watch']
-        )
-        publish(config, revision, task_ids_per_achitecture)
+        publish(config, repository, revision)
     # except:
     #     # TODO Less broad exception
     #     log.info('Revision {} is still waiting on some architectures to be built')
@@ -80,16 +76,6 @@ async def _dispatch(channel, body, envelope, properties):
             return await channel.basic_client_ack(delivery_tag=envelope.delivery_tag)
         else:
             log.info('Keeping the task')
-
-
-def get_task_ids_per_achitecture(repository, target_revision, android_architectures):
-    return {
-        pusk_apk_architecture_name: {
-            'task_id': tc_index.get_task_id(repository, target_revision, namespace_architecture_name)
-        }
-        for pusk_apk_architecture_name, namespace_architecture_name
-        in android_architectures.items()
-    }
 
 
 def does_route_contain_firefox(task_definition):

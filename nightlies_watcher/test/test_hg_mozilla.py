@@ -1,11 +1,12 @@
 import pytest
 
-from nightlies_watcher.hg_mozilla import get_minimal_repository_name, get_push_id, _get_push_log_url, _pluck_push_id
+from nightlies_watcher.hg_mozilla import _get_full_repository_name, get_push_id, _get_push_log_url, _pluck_push_id
 from nightlies_watcher.exceptions import NoPushIdError, TooManyPushIdsError
 
 
-def test_get_minimal_repository_name():
-    assert get_minimal_repository_name('releases/mozilla-aurora') == 'mozilla-aurora'
+def test_get_full_repository_name():
+    assert _get_full_repository_name('mozilla-aurora') == 'releases/mozilla-aurora'
+    assert _get_full_repository_name('mozilla-central') == 'mozilla-central'
 
 
 def test_get_push_log_url():

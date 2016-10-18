@@ -8,6 +8,5 @@ def test_craft_full_namespace():
 
 def test_get_task_id(monkeypatch):
     monkeypatch.setattr(_index, 'findTask', lambda _: {'taskId': 'VRzn3vi6RvSNaKTaT5u83A'})
-
-    assert get_task_id('releases/mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8', 'android-api-15') == \
+    assert get_task_id('mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8', 'android-api-15') == \
         'VRzn3vi6RvSNaKTaT5u83A'
