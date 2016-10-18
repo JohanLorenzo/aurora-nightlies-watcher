@@ -3,17 +3,18 @@ import requests
 from nightlies_watcher.exceptions import NoPushIdError, TooManyPushIdsError
 
 
-def get_minimal_repository_name(repository):
-    return repository.split('/')[-1]
-
-
 def get_push_id(repository, revision):
-    response = requests.get(_get_push_log_url(repository, revision), timeout=10)
+    full_repo_name = _get_full_repository_name(repository)
+    response = requests.get(_get_push_log_url(full_repo_name, revision), timeout=10)
     return _pluck_push_id(response.json(), revision)
 
 
-def _get_push_log_url(repository, revision):
-    return 'https://hg.mozilla.org/{}/json-pushes?changeset={}'.format(repository, revision)
+def _get_full_repository_name(repository):
+    return repository if repository == 'mozilla-central' else 'releases/{}'.format(repository)
+
+
+def _get_push_log_url(full_repository_name, revision):
+    return 'https://hg.mozilla.org/{}/json-pushes?changeset={}'.format(full_repository_name, revision)
 
 
 def _pluck_push_id(push_log_json, revision):

@@ -5,7 +5,8 @@ import pytest
 from distutils.util import strtobool
 
 from nightlies_watcher.exceptions import NotOnlyOneApkError
-from nightlies_watcher.publish import publish, _filter_right_artifacts, _craft_artifact_urls, _craft_task_data, _fetch_artifacts
+from nightlies_watcher.publish import publish, _filter_right_artifacts, _craft_artifact_urls, _craft_task_data, \
+    _fetch_task_ids_per_achitecture, _fetch_artifacts
 
 
 def test_filter_right_artifacts():
@@ -141,7 +142,6 @@ def test_craft_task_data(monkeypatch):
             'scopes': ['project:releng:googleplay:aurora'],
             'google_play_track': 'alpha'
         },
-        'repository_to_watch': 'releases/mozilla-aurora',
     }
 
     tasks_data_per_architecture = {
@@ -155,7 +155,7 @@ def test_craft_task_data(monkeypatch):
         },
     }
 
-    assert _craft_task_data(config, '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8', '10148', tasks_data_per_architecture) == {
+    assert _craft_task_data(config, 'mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8', '10148', tasks_data_per_architecture) == {
         'created': UTC_NOW,
         'deadline': UTC_NOW + datetime.timedelta(hours=1),
         'dependencies': ['QbosbKzTTB2E08IHTAtTfw', 'VRzn3vi6RvSNaKTaT5u83A'],
@@ -196,6 +196,24 @@ def test_craft_task_data(monkeypatch):
         ],
         'scopes': ['project:releng:googleplay:aurora'],
         'workerType': 'test-worker',
+    }
+
+
+def test_fetch_task_ids_per_achitecture(monkeypatch):
+    from nightlies_watcher import tc_index
+
+    monkeypatch.setattr(
+        tc_index, 'get_task_id', lambda _, __, architecture: 'QbosbKzTTB2E08IHTAtTfw' if architecture == 'android-x86' else 'VRzn3vi6RvSNaKTaT5u83A'
+    )
+
+    android_architectures_definition = {
+        'armv7_v15': 'android-api-15',
+        'x86': 'android-x86',
+    }
+
+    assert _fetch_task_ids_per_achitecture('mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8', android_architectures_definition) == {
+        'x86': {'task_id': 'QbosbKzTTB2E08IHTAtTfw'},
+        'armv7_v15': {'task_id': 'VRzn3vi6RvSNaKTaT5u83A'},
     }
 
 
@@ -242,12 +260,10 @@ def test_publish(monkeypatch):
             'scopes': ['project:releng:googleplay:aurora'],
             'google_play_track': 'alpha'
         },
-        'repository_to_watch': 'releases/mozilla-aurora',
-    }
-
-    data = {
-        'x86': {'task_id': 'QbosbKzTTB2E08IHTAtTfw'},
-        'armv7_v15': {'task_id': 'VRzn3vi6RvSNaKTaT5u83A'},
+        'architectures_to_watch': {
+          'x86': 'android-x86-opt',
+          'armv7_v15': 'android-api-15-opt'
+        },
     }
 
     UTC_NOW = datetime.datetime.utcnow()
@@ -306,4 +322,4 @@ def test_publish(monkeypatch):
     from nightlies_watcher import tc_queue
     monkeypatch.setattr(tc_queue, 'create_task', assert_create_task_is_called_with_right_arguments)
 
-    publish(config, '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8', data)
+    publish(config, 'mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8')
