@@ -3,6 +3,7 @@ import logging
 import json
 
 from nightlies_watcher import tc_queue
+from nightlies_watcher.exceptions import TaskNotFoundError
 from nightlies_watcher.publish import publish
 from nightlies_watcher.config import get_config
 
@@ -45,27 +46,36 @@ async def worker():
 
 
 async def _dispatch(channel, body, envelope, properties):
-    config = get_config()
+    body = json.loads(body.decode('utf-8'))
+    log.debug('Got a new message from the queue. Channel: {}. Body: {}. Envelope: {}. Properties: {}'.format(
+        channel, body, envelope, properties
+    ))
 
-    body = json.loads(body.decode("utf-8"))
-    log.debug(channel, body, envelope, properties)
     task_id = body['status']['taskId']
+    config = get_config()
 
     try:
         task_definition = tc_queue.fetch_task_definition(task_id)
         revision = tc_queue.pluck_revision(task_definition)
         repository = tc_queue.pluck_repository(task_definition)
+
+        log.info('Processing revision "{}" from repository "{}" (triggered by completed task "{}")'.format(
+            revision, repository, task_id
+        ))
         publish(config, repository, revision)
-    # except:
-    #     # TODO Less broad exception
-    #     log.info('Revision {} is still waiting on some architectures to be built')
+
+    except TaskNotFoundError as e:
+        log.info('Revision "{}" does not have architecture "{}" completed yet'.format(
+            revision, e.missing_android_architecture
+        ))
 
     except Exception as e:
-        log.exception('Exception %s caught by generic exception trap', e)
+        log.exception('Exception {} caught by generic exception trap'.format(e))
 
     finally:
-        log.info('Task %r', task_definition)
+        log.info('Processed task "{}". Definition: {}'.format(task_id, task_definition))
 
+        # TODO Remove that queue cleaner
         if does_route_contain_firefox(task_definition):
             log.info('Automatically acknowledging consumption of %r', task_id)
             return await channel.basic_client_ack(delivery_tag=envelope.delivery_tag)
