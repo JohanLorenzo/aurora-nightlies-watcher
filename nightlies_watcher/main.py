@@ -4,7 +4,7 @@ import os
 import taskcluster
 
 from nightlies_watcher.config import get_config
-from nightlies_watcher.worker import worker
+from nightlies_watcher.worker import start_message_queue_worker
 
 event_loop = asyncio.get_event_loop()
 
@@ -29,7 +29,7 @@ def main(name):
     taskcluster.config['credentials']['accessToken'] = config['credentials']['access_token']
 
     try:
-        event_loop.run_until_complete(worker())
+        event_loop.run_until_complete(start_message_queue_worker(config))
         event_loop.run_forever()
     except KeyboardInterrupt:
         # TODO: make better shutdown
