@@ -12,11 +12,14 @@ def main(name=None):
     if name not in ('__main__', None):
         return
 
-    FORMAT = '%(asctime)s - %(filename)s - %(levelname)s - %(message)s'
-    logging.basicConfig(format=FORMAT, level=logging.INFO)
-    # logging.getLogger('taskcluster').setLevel(logging.WARNING)
-
     config = get_config()
+
+    FORMAT = '%(asctime)s - %(filename)s - %(levelname)s - %(message)s'
+    level = logging.DEBUG if config.get('verbose', False) else logging.INFO
+    logging.basicConfig(format=FORMAT, level=level)
+    logging.getLogger('requests').setLevel(logging.WARNING)
+    logging.getLogger('taskcluster').setLevel(logging.WARNING)
+    logging.getLogger('mohawk').setLevel(logging.WARNING)
 
     taskcluster.config['credentials']['clientId'] = config['credentials']['client_id']
     taskcluster.config['credentials']['accessToken'] = config['credentials']['access_token']

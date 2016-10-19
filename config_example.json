@@ -24,5 +24,6 @@
     "worker_type": "pushapk-v1",
     "scopes": ["project:releng:googleplay:aurora"],
     "google_play_track": "alpha"
-  }
+  },
+  "verbose": true
 }

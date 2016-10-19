@@ -35,5 +35,6 @@
       "path": "exchange/taskcluster-queue/v1/task-completed",
       "routing_keys": ["route.index.gecko.v2.mozilla-aurora.nightly.latest.mobile.#"]
     }]
-  }
+  },
+  "verbose": false
 }

@@ -45,7 +45,7 @@ async def start_message_queue_worker(config):
 
 async def _dispatch(channel, body, envelope, _):
     body = json.loads(body.decode('utf-8'))
-    log.warn('Got a new message from the queue. Body: {}'.format(body))
+    log.debug('Got a new message from the queue. Body: {}'.format(body))
 
     task_id = body['status']['taskId']
     config = get_config()
