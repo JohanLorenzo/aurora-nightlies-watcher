@@ -6,7 +6,7 @@ import taskcluster
 
 from nightlies_watcher import treeherder, hg_mozilla, tc_index, tc_queue
 from nightlies_watcher.directories import PROJECT_DIRECTORY
-from nightlies_watcher.exceptions import NotOnlyOneApkError
+from nightlies_watcher.exceptions import NotOnlyOneApkError, TreeherderJobAlreadyExistError
 
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,13 @@ with open(os.path.join(PROJECT_DIRECTORY, 'source_url.txt')) as f:
     source_url = f.read().rstrip()
 
 
-def publish(config, repository, revision):
+def publish_if_possible(config, repository, revision):
+    task_config = config['task']
+    job_name = task_config['name']
+
+    if treeherder.does_job_already_exist(repository, revision, job_name, tier=task_config['treeherder']['tier']):
+        raise TreeherderJobAlreadyExistError(repository, revision, job_name)
+
     tasks_data_per_architecture = _fetch_task_ids_per_achitecture(repository, revision, config['architectures_to_watch'])
     tasks_data_per_architecture = _fetch_artifacts(tasks_data_per_architecture)
     tasks_data_per_architecture = _filter_right_artifacts(tasks_data_per_architecture)

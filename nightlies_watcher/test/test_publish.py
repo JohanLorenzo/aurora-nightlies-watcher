@@ -4,9 +4,9 @@ import pytest
 
 from distutils.util import strtobool
 
-from nightlies_watcher.exceptions import NotOnlyOneApkError
-from nightlies_watcher.publish import publish, _filter_right_artifacts, _craft_artifact_urls, _craft_task_data, \
-    _fetch_task_ids_per_achitecture, _fetch_artifacts
+from nightlies_watcher.exceptions import NotOnlyOneApkError, TreeherderJobAlreadyExistError
+from nightlies_watcher.publish import publish_if_possible, _filter_right_artifacts, _craft_artifact_urls, \
+    _craft_task_data, _fetch_task_ids_per_achitecture, _fetch_artifacts
 
 
 def test_filter_right_artifacts():
@@ -240,7 +240,7 @@ def test_fetch_artifacts(monkeypatch):
 
 
 @pytest.mark.skipif(strtobool(os.environ.get('SKIP_NETWORK_TESTS', 'true')), reason='Tests requiring network are skipped')
-def test_publish(monkeypatch):
+def test_publish_if_possible(monkeypatch):
     config = {
         'task': {
             'name': 'Google Play Publisher',
@@ -319,7 +319,27 @@ def test_publish(monkeypatch):
             'workerType': 'test-worker',
         }
 
+    from nightlies_watcher import treeherder
+    monkeypatch.setattr(treeherder, 'does_job_already_exist', lambda _, __, ___, tier: False)
+
     from nightlies_watcher import tc_queue
     monkeypatch.setattr(tc_queue, 'create_task', assert_create_task_is_called_with_right_arguments)
 
-    publish(config, 'mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8')
+    publish_if_possible(config, 'mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8')
+
+
+def test_publish_raises_error_if_job_exists_in_treeherder(monkeypatch):
+    config = {
+        'task': {
+            'name': 'Google Play Publisher',
+            'treeherder': {
+                'tier': 3,
+            }
+        }
+    }
+
+    from nightlies_watcher import treeherder
+    monkeypatch.setattr(treeherder, 'does_job_already_exist', lambda _, __, ___, tier: True)
+
+    with pytest.raises(TreeherderJobAlreadyExistError):
+        publish_if_possible(config, 'mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8')

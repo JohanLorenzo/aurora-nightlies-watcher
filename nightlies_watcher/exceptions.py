@@ -24,3 +24,20 @@ class TaskNotFoundError(Exception):
         super().__init__('Task for architecture {} and revision {} in repository {} does not exist'.format(
             missing_android_architecture, revision, repository
         ))
+
+
+class TreeherderJobAlreadyExistError(Exception):
+    def __init__(self, repository, revision, job_name):
+        super().__init__('"{}" already exists for revision "{}" in repository "{}"'.format(
+            job_name, repository, revision
+        ))
+
+
+class NoTreeherderResultSetError(Exception):
+    def __init__(self, repository, revision):
+        super().__init__('No result found for revision {} in repository {}'.format(revision, repository))
+
+
+class TooManyTreeherderResultSetsError(Exception):
+    def __init__(self, repository, revision):
+        super().__init__('More than 1 result matches revision {} in repository {}'.format(revision, repository))
