@@ -1,4 +1,8 @@
 {
+  "credentials": {
+    "client_id": "dummy-client-id",
+    "access_token": "dummy-access-token"
+  },
   "architectures_to_watch": {
     "x86": "android-x86-opt",
     "armv7_v15": "android-api-15-opt"
