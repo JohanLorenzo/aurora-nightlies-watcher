@@ -25,5 +25,16 @@
     "scopes": ["project:releng:googleplay:aurora"],
     "google_play_track": "alpha"
   },
+  "pulse": {
+    "host": "pulse.mozilla.org",
+    "port": "5671",
+    "user": "YOUR_USER",
+    "password": "YOUR_PASSWORD",
+    "queue": "YOUR_QUEUE_NAME",
+    "exchanges": [{
+      "path": "exchange/taskcluster-queue/v1/task-completed",
+      "routing_keys": ["route.index.gecko.v2.mozilla-aurora.nightly.latest.mobile.#"]
+    }]
+  },
   "verbose": true
 }
