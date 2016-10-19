@@ -9,7 +9,7 @@ from aioamqp.channel import Channel
 from unittest.mock import Mock
 
 from nightlies_watcher import tc_queue, publish
-from nightlies_watcher.exceptions import TaskNotFoundError
+from nightlies_watcher.exceptions import TaskNotFoundError, TreeherderJobAlreadyExistError
 from nightlies_watcher.worker import _dispatch, start_message_queue_worker
 
 
@@ -83,7 +83,7 @@ async def test_dispatch(monkeypatch):
         }
     })
 
-    monkeypatch.setattr(publish, 'publish', lambda _, __, ___: None)
+    monkeypatch.setattr(publish, 'publish_if_possible', lambda _, __, ___: None)
 
     channel = asynctest.mock.Mock(Channel)
     envelope = Mock()
@@ -92,17 +92,24 @@ async def test_dispatch(monkeypatch):
     await _dispatch(channel, body, envelope, None)
     channel.basic_client_ack.assert_called_once_with(delivery_tag=envelope.delivery_tag)
 
+    def raise_job_already_exists(_, __, ___):
+        raise TreeherderJobAlreadyExistError('', '', '')
+
+    monkeypatch.setattr(publish, 'publish_if_possible', raise_job_already_exists)
+    # JobAlreadyExistError should explictly be processed within _dispatch
+    await _dispatch(channel, body, envelope, None)
+
     def raise_task_not_found(_, __, ___):
         raise TaskNotFoundError('', '', '')
 
-    monkeypatch.setattr(publish, 'publish', raise_task_not_found)
-    # TaskNotFoundError should be processed within _dispatch
+    monkeypatch.setattr(publish, 'publish_if_possible', raise_task_not_found)
+    # TaskNotFoundError should explictly be processed within _dispatch
     await _dispatch(channel, body, envelope, None)
 
     def raise_other_exception(_, __, ___):
         raise Exception()
 
-    monkeypatch.setattr(publish, 'publish', raise_other_exception)
+    monkeypatch.setattr(publish, 'publish_if_possible', raise_other_exception)
     # Other exceptions should be caught by the general trap
     await _dispatch(channel, body, envelope, None)
 

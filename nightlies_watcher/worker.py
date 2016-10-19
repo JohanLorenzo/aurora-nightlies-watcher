@@ -3,7 +3,7 @@ import logging
 import json
 
 from nightlies_watcher import tc_queue, publish
-from nightlies_watcher.exceptions import TaskNotFoundError
+from nightlies_watcher.exceptions import TaskNotFoundError, TreeherderJobAlreadyExistError
 from nightlies_watcher.config import get_config
 
 
@@ -58,7 +58,10 @@ async def _dispatch(channel, body, envelope, _):
         log.info('Processing revision "{}" from repository "{}" (triggered by completed task "{}")'.format(
             revision, repository, task_id
         ))
-        publish.publish(config, repository, revision)
+        publish.publish_if_possible(config, repository, revision)
+
+    except TreeherderJobAlreadyExistError:
+        log.warn('A treeherder job already exists for revision "{}" in repository "{}"'.format(revision, repository))
 
     except TaskNotFoundError as e:
         log.info('Revision "{}" does not have architecture "{}" completed yet'.format(
@@ -66,8 +69,8 @@ async def _dispatch(channel, body, envelope, _):
         ))
 
     except Exception as e:
-        log.exception('Exception {} caught by generic exception trap'.format(e))
+        log.exception('Exception "{}" caught by generic exception trap'.format(e))
 
     finally:
-        log.info('Marking message as read. Processed task "{}". Definition: {}'.format(task_id, task_definition))
+        log.info('Marking message as read. Processed task "{}"'.format(task_id))
         await channel.basic_client_ack(delivery_tag=envelope.delivery_tag)
