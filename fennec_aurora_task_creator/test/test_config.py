@@ -3,41 +3,15 @@ import os
 import pytest
 import tempfile
 
-from copy import copy
+from copy import copy, deepcopy
 from frozendict import frozendict
 
 from fennec_aurora_task_creator.config import get_config, _generate_final_config_object, _recursive_defaultdict, _add_configuration, \
     _get_environment_or_config_or_default_value
-from fennec_aurora_task_creator.directories import DATA_DIRECTORY
 from fennec_aurora_task_creator.exceptions import MissingConfigurationError
 
 
-def test_get_config():
-    original_config = {'config_attribute': 'config_argument'}
-
-    with tempfile.TemporaryDirectory() as directory:
-        config_path = os.path.join(directory, 'config.json')
-
-        with open(config_path, 'w') as f:
-            json.dump(original_config, f)
-
-        config = get_config(config_path=config_path)
-        assert config == original_config
-        assert isinstance(config, frozendict)
-
-    # Second call doesn't reload file
-    second_config = get_config(config_path=config_path)
-    assert second_config is config
-
-    # Non-exising config loads default one
-    default_config = get_config(config_path='/non/existing/path')
-    with open(os.path.join(DATA_DIRECTORY, 'config.default.json')) as f:
-        expected_default_config = json.load(f)
-
-    assert default_config == expected_default_config
-
-
-MINIMAL_CONFIG = {
+MINIMAL_REQUIRED_CONFIG = {
     'credentials': {
         'client_id': 'dummy-client-id',
         'access_token': 'dummy-token'
@@ -59,14 +33,77 @@ MINIMAL_CONFIG = {
     }
 }
 
+DEFAULT_PROVIDED_CONFIG = {
+    'architectures_to_watch': {
+        'x86': 'android-x86-opt',
+        'armv7_v15': 'android-api-15-opt',
+    },
+    'task': {
+        'name': 'Google Play Publisher',
+        'description': 'Publishes Aurora builds to Google Play Store',
+        'google_play_track': 'alpha',
+        'treeherder': {
+            'platform': 'Android',
+            'group_name': 'Publisher',
+            'group_symbol': 'pub',
+            'tier': 3,
+            'is_opt': True,
+        },
+    },
+    'pulse': {
+        'host': 'pulse.mozilla.org',
+        'port': 5671,
+        'exchanges': [{
+            'path': "exchange/taskcluster-queue/v1/task-completed",
+            'routing_keys': ["route.index.gecko.v2.mozilla-aurora.nightly.latest.mobile.#"]
+        }],
+    },
+    'verbose': False,
+}
+
+
+def merge(a, b, path=None):
+    path = [] if path is None else path
+
+    for key in b:
+        if key in a:
+            if isinstance(a[key], dict) and isinstance(b[key], dict):
+                merge(a[key], b[key], path + [str(key)])
+        else:
+            a[key] = b[key]
+    return a
+
+
+def test_get_config():
+    with tempfile.TemporaryDirectory() as directory:
+        config_path = os.path.join(directory, 'config.json')
+
+        with open(config_path, 'w') as f:
+            json.dump(MINIMAL_REQUIRED_CONFIG, f)
+
+        config = get_config(config_path=config_path)
+        expected_config = merge(deepcopy(MINIMAL_REQUIRED_CONFIG), DEFAULT_PROVIDED_CONFIG)
+
+        assert config == expected_config
+        assert isinstance(config, frozendict)
+
+    # Second call doesn't reload file
+    second_config = get_config(config_path=config_path)
+    assert second_config is config
+
 
 def test_generate_final_config_object_allows_full_config_to_be_a_dict_alone():
-    final_config = _generate_final_config_object(MINIMAL_CONFIG)
+    final_config = _generate_final_config_object(MINIMAL_REQUIRED_CONFIG)
     assert final_config['credentials']['access_token'] == 'dummy-token'
 
 
 def test_generate_final_config_object_fulfills_default_values():
-    final_config = _generate_final_config_object(MINIMAL_CONFIG)
+    final_config = _generate_final_config_object(MINIMAL_REQUIRED_CONFIG)
+
+    assert final_config['architectures_to_watch'] == {
+        'x86': 'android-x86-opt',
+        'armv7_v15': 'android-api-15-opt',
+    }
 
     assert final_config['task']['name'] == 'Google Play Publisher'
     assert final_config['task']['description'] == 'Publishes Aurora builds to Google Play Store'
@@ -80,6 +117,10 @@ def test_generate_final_config_object_fulfills_default_values():
 
     assert final_config['pulse']['host'] == 'pulse.mozilla.org'
     assert final_config['pulse']['port'] == 5671
+    assert final_config['pulse']['exchanges'] == [{
+        'path': "exchange/taskcluster-queue/v1/task-completed",
+        'routing_keys': ["route.index.gecko.v2.mozilla-aurora.nightly.latest.mobile.#"]
+    }]
 
     assert not(final_config['verbose'])
 
@@ -87,14 +128,23 @@ def test_generate_final_config_object_fulfills_default_values():
 def test_generate_final_config_object_allows_environment_variables():
     os.environ['TASKCLUSTER_ACCESS_TOKEN'] = 'dummy-env-token'
 
-    final_config = _generate_final_config_object(MINIMAL_CONFIG)
+    final_config = _generate_final_config_object(MINIMAL_REQUIRED_CONFIG)
     assert final_config['credentials']['access_token'] == 'dummy-env-token'
 
     del os.environ['TASKCLUSTER_ACCESS_TOKEN']
 
 
+def test_generate_final_config_parses_json_for_certain_keys():
+    os.environ['TASK_SCOPES'] = '["project:releng:googleplay:aurora"]'
+
+    final_config = _generate_final_config_object(MINIMAL_REQUIRED_CONFIG)
+    assert final_config['task']['scopes'] == ["project:releng:googleplay:aurora"]
+
+    del os.environ['TASK_SCOPES']
+
+
 def test_generate_final_config_object_reports_missing_mandatory_configuration():
-    initial_config = copy(MINIMAL_CONFIG)
+    initial_config = copy(MINIMAL_REQUIRED_CONFIG)
     del initial_config['credentials']['access_token']
 
     with pytest.raises(MissingConfigurationError):
