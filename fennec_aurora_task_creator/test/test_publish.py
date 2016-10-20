@@ -178,7 +178,7 @@ def test_craft_task_data(monkeypatch):
             'name': 'Google Play Publisher',
             'description': 'Publishes Aurora builds to Google Play Store',
             'owner': 'r@m.c',
-            'source': 'https://github.com/JohanLorenzo/fennec-aurora-task-creator',
+            'source': 'https://github.com/mozilla-releng/fennec-aurora-task-creator',
         },
         'payload': {
             'apks': {
@@ -299,7 +299,7 @@ def test_publish_if_possible(monkeypatch):
                 'name': 'Google Play Publisher',
                 'description': 'Publishes Aurora builds to Google Play Store',
                 'owner': 'r@m.c',
-                'source': 'https://github.com/JohanLorenzo/fennec-aurora-task-creator',
+                'source': 'https://github.com/mozilla-releng/fennec-aurora-task-creator',
             },
             'payload': {
                 'apks': {

@@ -1,1 +1,1 @@
-https://github.com/JohanLorenzo/fennec-aurora-task-creator
+https://github.com/mozilla-releng/fennec-aurora-task-creator
