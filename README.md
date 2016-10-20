@@ -1,6 +1,6 @@
 # fennec-aurora-task-creator
 
-[![Build Status](https://travis-ci.org/JohanLorenzo/fennec-aurora-task-creator.svg?branch=master)](https://travis-ci.org/JohanLorenzo/fennec-aurora-task-creator) [![Coverage Status](https://coveralls.io/repos/github/JohanLorenzo/fennec-aurora-task-creator/badge.svg?branch=master)](https://coveralls.io/github/JohanLorenzo/fennec-aurora-task-creator?branch=master)
+[![Build Status](https://travis-ci.org/mozilla-releng/fennec-aurora-task-creator.svg?branch=master)](https://travis-ci.org/mozilla-releng/fennec-aurora-task-creator) [![Coverage Status](https://coveralls.io/repos/github/mozilla-releng/fennec-aurora-task-creator/badge.svg?branch=master)](https://coveralls.io/github/mozilla-releng/fennec-aurora-task-creator?branch=master)
 
 Create publishing tasks once Firefox for Android nightlies are built. It currently only supports publishing to Google Play Store.
 
