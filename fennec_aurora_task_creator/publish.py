@@ -4,9 +4,9 @@ import os
 import re
 import taskcluster
 
-from nightlies_watcher import treeherder, hg_mozilla, tc_index, tc_queue
-from nightlies_watcher.directories import PROJECT_DIRECTORY
-from nightlies_watcher.exceptions import NotOnlyOneApkError, TreeherderJobAlreadyExistError
+from fennec_aurora_task_creator import treeherder, hg_mozilla, tc_index, tc_queue
+from fennec_aurora_task_creator.directories import PROJECT_DIRECTORY
+from fennec_aurora_task_creator.exceptions import NotOnlyOneApkError, TreeherderJobAlreadyExistError
 
 
 logger = logging.getLogger(__name__)

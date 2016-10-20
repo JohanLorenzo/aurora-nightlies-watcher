@@ -1,8 +1,8 @@
 import pytest
 import taskcluster
 
-from nightlies_watcher.exceptions import TaskNotFoundError
-from nightlies_watcher.tc_index import get_task_id, _craft_full_namespace, _index
+from fennec_aurora_task_creator.exceptions import TaskNotFoundError
+from fennec_aurora_task_creator.tc_index import get_task_id, _craft_full_namespace, _index
 
 
 def test_craft_full_namespace():

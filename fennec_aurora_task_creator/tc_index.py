@@ -1,6 +1,6 @@
 from taskcluster import Index, exceptions
 
-from nightlies_watcher.exceptions import TaskNotFoundError
+from fennec_aurora_task_creator.exceptions import TaskNotFoundError
 
 _index = Index()
 

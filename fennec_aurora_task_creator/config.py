@@ -3,7 +3,7 @@ import logging
 import os
 from frozendict import frozendict
 
-from nightlies_watcher.directories import PROJECT_DIRECTORY, DATA_DIRECTORY
+from fennec_aurora_task_creator.directories import PROJECT_DIRECTORY, DATA_DIRECTORY
 
 logger = logging.getLogger(__name__)
 

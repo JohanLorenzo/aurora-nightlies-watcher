@@ -16,7 +16,7 @@
       "group_name": "Publisher",
       "group_symbol": "pub",
       "symbol": "gp",
-      "reason": "The Nightly scheduler named 'nightlies-watcher' triggered this build",
+      "reason": "The Nightly scheduler named 'fennec-aurora-task-creator' triggered this build",
       "tier": 3,
       "is_opt": true
     },

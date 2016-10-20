@@ -4,8 +4,8 @@ import pytest
 
 from distutils.util import strtobool
 
-from nightlies_watcher.exceptions import NotOnlyOneApkError, TreeherderJobAlreadyExistError
-from nightlies_watcher.publish import publish_if_possible, _filter_right_artifacts, _craft_artifact_urls, \
+from fennec_aurora_task_creator.exceptions import NotOnlyOneApkError, TreeherderJobAlreadyExistError
+from fennec_aurora_task_creator.publish import publish_if_possible, _filter_right_artifacts, _craft_artifact_urls, \
     _craft_task_data, _fetch_task_ids_per_achitecture, _fetch_artifacts
 
 
@@ -178,7 +178,7 @@ def test_craft_task_data(monkeypatch):
             'name': 'Google Play Publisher',
             'description': 'Publishes Aurora builds to Google Play Store',
             'owner': 'r@m.c',
-            'source': 'https://github.com/JohanLorenzo/nightlies-watcher',
+            'source': 'https://github.com/JohanLorenzo/fennec-aurora-task-creator',
         },
         'payload': {
             'apks': {
@@ -200,7 +200,7 @@ def test_craft_task_data(monkeypatch):
 
 
 def test_fetch_task_ids_per_achitecture(monkeypatch):
-    from nightlies_watcher import tc_index
+    from fennec_aurora_task_creator import tc_index
 
     monkeypatch.setattr(
         tc_index, 'get_task_id', lambda _, __, architecture: 'QbosbKzTTB2E08IHTAtTfw' if architecture == 'android-x86' else 'VRzn3vi6RvSNaKTaT5u83A'
@@ -218,7 +218,7 @@ def test_fetch_task_ids_per_achitecture(monkeypatch):
 
 
 def test_fetch_artifacts(monkeypatch):
-    from nightlies_watcher import tc_queue
+    from fennec_aurora_task_creator import tc_queue
 
     monkeypatch.setattr(tc_queue, 'fetch_artifacts_list', lambda _: ['dummy_data'])
 
@@ -299,7 +299,7 @@ def test_publish_if_possible(monkeypatch):
                 'name': 'Google Play Publisher',
                 'description': 'Publishes Aurora builds to Google Play Store',
                 'owner': 'r@m.c',
-                'source': 'https://github.com/JohanLorenzo/nightlies-watcher',
+                'source': 'https://github.com/JohanLorenzo/fennec-aurora-task-creator',
             },
             'payload': {
                 'apks': {
@@ -319,10 +319,10 @@ def test_publish_if_possible(monkeypatch):
             'workerType': 'test-worker',
         }
 
-    from nightlies_watcher import treeherder
+    from fennec_aurora_task_creator import treeherder
     monkeypatch.setattr(treeherder, 'does_job_already_exist', lambda _, __, ___, tier: False)
 
-    from nightlies_watcher import tc_queue
+    from fennec_aurora_task_creator import tc_queue
     monkeypatch.setattr(tc_queue, 'create_task', assert_create_task_is_called_with_right_arguments)
 
     publish_if_possible(config, 'mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8')
@@ -338,7 +338,7 @@ def test_publish_raises_error_if_job_exists_in_treeherder(monkeypatch):
         }
     }
 
-    from nightlies_watcher import treeherder
+    from fennec_aurora_task_creator import treeherder
     monkeypatch.setattr(treeherder, 'does_job_already_exist', lambda _, __, ___, tier: True)
 
     with pytest.raises(TreeherderJobAlreadyExistError):

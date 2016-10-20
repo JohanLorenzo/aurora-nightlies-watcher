@@ -1,7 +1,8 @@
 import pytest
 
-from nightlies_watcher.tc_queue import fetch_task_definition, pluck_architecture, pluck_repository, pluck_revision, _queue, fetch_artifacts_list, create_task
-from nightlies_watcher.exceptions import UnmatchedRouteError
+from fennec_aurora_task_creator.tc_queue import fetch_task_definition, pluck_architecture, pluck_repository, pluck_revision, \
+    _queue, fetch_artifacts_list, create_task
+from fennec_aurora_task_creator.exceptions import UnmatchedRouteError
 
 TASK_DEFINITION = {
     'routes': [

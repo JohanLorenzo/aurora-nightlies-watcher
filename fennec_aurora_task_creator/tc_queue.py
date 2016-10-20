@@ -2,7 +2,7 @@ import re
 
 from taskcluster import Queue
 
-from nightlies_watcher.exceptions import UnmatchedRouteError
+from fennec_aurora_task_creator.exceptions import UnmatchedRouteError
 
 _queue = Queue()
 

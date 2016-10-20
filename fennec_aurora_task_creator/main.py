@@ -2,8 +2,8 @@ import asyncio
 import logging
 import taskcluster
 
-from nightlies_watcher.config import get_config
-from nightlies_watcher.worker import start_message_queue_worker
+from fennec_aurora_task_creator.config import get_config
+from fennec_aurora_task_creator.worker import start_message_queue_worker
 
 logger = logging.getLogger(__name__)
 

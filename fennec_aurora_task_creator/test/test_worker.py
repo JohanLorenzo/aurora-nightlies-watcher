@@ -8,9 +8,9 @@ from aioamqp.channel import Channel
 
 from unittest.mock import Mock
 
-from nightlies_watcher import tc_queue, publish
-from nightlies_watcher.exceptions import TaskNotFoundError, TreeherderJobAlreadyExistError
-from nightlies_watcher.worker import _dispatch, start_message_queue_worker
+from fennec_aurora_task_creator import tc_queue, publish
+from fennec_aurora_task_creator.exceptions import TaskNotFoundError, TreeherderJobAlreadyExistError
+from fennec_aurora_task_creator.worker import _dispatch, start_message_queue_worker
 
 
 @pytest.mark.asyncio

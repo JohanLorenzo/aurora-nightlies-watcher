@@ -1,6 +1,6 @@
-# nightlies-watcher
+# fennec-aurora-task-creator
 
-[![Build Status](https://travis-ci.org/JohanLorenzo/nightlies-watcher.svg?branch=master)](https://travis-ci.org/JohanLorenzo/nightlies-watcher) [![Coverage Status](https://coveralls.io/repos/github/JohanLorenzo/nightlies-watcher/badge.svg?branch=master)](https://coveralls.io/github/JohanLorenzo/nightlies-watcher?branch=master)
+[![Build Status](https://travis-ci.org/JohanLorenzo/fennec-aurora-task-creator.svg?branch=master)](https://travis-ci.org/JohanLorenzo/fennec-aurora-task-creator) [![Coverage Status](https://coveralls.io/repos/github/JohanLorenzo/fennec-aurora-task-creator/badge.svg?branch=master)](https://coveralls.io/github/JohanLorenzo/fennec-aurora-task-creator?branch=master)
 
 Create publishing tasks once Firefox for Android nightlies are built. It currently only supports publishing to Google Play Store.
 
@@ -14,7 +14,7 @@ First, you need `python>=3.5.0`.
 virtualenv3 venv3
 # activate it
 . venv3/bin/activate
-pip install nightlies-watcher
+pip install fennec-aurora-task-creator
 ```
 
 ## Configure
@@ -40,11 +40,11 @@ Here you may [create and edit scopes](https://tools.taskcluster.net/auth/clients
 
 ### Pulse config
 
-In order to know when builds are ready, nightlies-watcher relies on [Pulse](https://wiki.mozilla.org/Auto-tools/Projects/Pulse). Here you may [create a client](https://pulseguardian.mozilla.org/profile). If you're using Mozilla's instance, you'll need to listen to the [task completed exchange](https://wiki.mozilla.org/Auto-tools/Projects/Pulse/Exchanges#Queue:_Task_Completed), which translates to:
+In order to know when builds are ready, fennec-aurora-task-creator relies on [Pulse](https://wiki.mozilla.org/Auto-tools/Projects/Pulse). Here you may [create a client](https://pulseguardian.mozilla.org/profile). If you're using Mozilla's instance, you'll need to listen to the [task completed exchange](https://wiki.mozilla.org/Auto-tools/Projects/Pulse/Exchanges#Queue:_Task_Completed), which translates to:
 ```
 exchange/taskcluster-queue/v1/task-completed
 ```
-At the first start of nightlies-watcher, a pulse queue will be created. If you're still using Mozilla's instance, nightlies are found under these keys:
+At the first start of fennec-aurora-task-creator, a pulse queue will be created. If you're still using Mozilla's instance, nightlies are found under these keys:
 ```
 route.index.gecko.v2.$BRANCH.nightly.latest.$PLATFORM.#
 ```

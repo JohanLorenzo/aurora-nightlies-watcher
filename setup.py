@@ -8,19 +8,19 @@ with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'source_url.t
     source_url = f.read().rstrip()
 
 setup(
-    name="nightlies-watcher",
+    name="fennec-aurora-task-creator",
     version=version,
     description="Watches Aurora nightlies and creates tasks to deploy them to Google Play Store",
     author="Mozilla Release Engineering",
     author_email="release+python@mozilla.com",
     url=source_url,
     packages=find_packages(),
-    package_data={"nightlies-watcher": ["data/*"]},
+    package_data={"fennec-aurora-task-creator": ["data/*"]},
     include_package_data=True,
     zip_safe=False,
     entry_points={
         "console_scripts": [
-            "nightlies-watcher = nightlies_watcher.main:main",
+            "fennec-aurora-task-creator = fennec_aurora_task_creator.main:main",
         ],
     },
     license="MPL2",

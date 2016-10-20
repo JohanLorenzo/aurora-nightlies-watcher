@@ -1,6 +1,6 @@
 import requests
 
-from nightlies_watcher.exceptions import NoPushIdError, TooManyPushIdsError
+from fennec_aurora_task_creator.exceptions import NoPushIdError, TooManyPushIdsError
 
 
 def get_push_id(repository, revision):
