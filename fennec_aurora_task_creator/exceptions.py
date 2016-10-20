@@ -41,3 +41,10 @@ class NoTreeherderResultSetError(Exception):
 class TooManyTreeherderResultSetsError(Exception):
     def __init__(self, repository, revision):
         super().__init__('More than 1 result matches revision {} in repository {}'.format(revision, repository))
+
+
+class MissingConfigurationError(Exception):
+    def __init__(self, environment_key, path):
+        super().__init__('Either environment variable "{}" or "{}" in configuration file should be set '.format(
+            environment_key, path
+        ))
