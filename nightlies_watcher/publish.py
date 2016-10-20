@@ -40,10 +40,10 @@ def publish_if_possible(config, repository, revision):
 
 def _fetch_task_ids_per_achitecture(repository, target_revision, android_architectures_definition):
     return {
-        pusk_apk_architecture_name: {
+        push_apk_architecture_name: {
             'task_id': tc_index.get_task_id(repository, target_revision, tc_namespace_architecture_name)
         }
-        for pusk_apk_architecture_name, tc_namespace_architecture_name
+        for push_apk_architecture_name, tc_namespace_architecture_name
         in android_architectures_definition.items()
     }
 
