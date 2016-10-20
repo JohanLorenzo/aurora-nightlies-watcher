@@ -11,8 +11,6 @@ from fennec_aurora_task_creator.exceptions import MissingConfigurationError
 
 logger = logging.getLogger(__name__)
 
-_configs = {}
-
 DEFAULT_LOCATION = os.path.join(PROJECT_DIRECTORY, 'config.json')
 
 KEYS_AND_DEFAULT_VALUES = (
@@ -64,23 +62,24 @@ KEYS_AND_DEFAULT_VALUES = (
 )
 
 
-def get_config(config_path=None):
-    config_path = config_path or DEFAULT_LOCATION
+_config = None
 
-    try:
-        return _configs[config_path]
-    except KeyError:
-        config = _generate_config_from_environment_and_config_file_and_defaults(config_path)
-        _configs[config_path] = config
-        return config
+
+def get_config(config_path=DEFAULT_LOCATION):
+    global _config
+
+    if _config is None:
+        _config = _generate_config_from_environment_and_config_file_and_defaults(config_path)
+
+    return _config
 
 
 def _generate_config_from_environment_and_config_file_and_defaults(config_path):
-    logger.debug('Loading config file at "{}"'.format(config_path))
-
     try:
         config_from_json_file = _load_config(config_path)
+        logger.info('Loaded config file at "{}"'.format(config_path))
     except FileNotFoundError:
+        logger.warn('Cannot find config file at "{}". Using values from environment.'.format(config_path))
         config_from_json_file = frozendict({})
 
     final_config = _generate_final_config_object(config_from_json_file)

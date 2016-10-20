@@ -7,7 +7,7 @@ from copy import copy, deepcopy
 from frozendict import frozendict
 
 from fennec_aurora_task_creator.config import get_config, _generate_final_config_object, _recursive_defaultdict, _add_configuration, \
-    _get_environment_or_config_or_default_value
+    _get_environment_or_config_or_default_value, _generate_config_from_environment_and_config_file_and_defaults
 from fennec_aurora_task_creator.exceptions import MissingConfigurationError
 
 
@@ -90,6 +90,37 @@ def test_get_config():
     # Second call doesn't reload file
     second_config = get_config(config_path=config_path)
     assert second_config is config
+
+
+def test_generate_config_from_environment_and_config_file_and_defaults_accepts_no_config_file():
+    # Set required configuration
+    os.environ['TASKCLUSTER_CLIENT_ID'] = 'env-client-id'
+    os.environ['TASKCLUSTER_ACCESS_TOKEN'] = 'env-token'
+    os.environ['TASK_OWNER_EMAIL'] = 'env@m.c'
+    os.environ['TASK_PROVISIONER_ID'] = 'env-prov-id'
+    os.environ['TASK_WORKER_TYPE'] = 'env-worker-type'
+    os.environ['TASK_SCOPES'] = '["env:scope"]'
+    os.environ['TREEHERDER_JOB_SYMBOL'] = 'env'
+    os.environ['TREEHERDER_JOB_REASON'] = 'env reason'
+    os.environ['PULSE_USER'] = 'env-user'
+    os.environ['PULSE_PASSWORD'] = 'env-password'
+    os.environ['PULSE_QUEUE_NAME'] = 'env-queue'
+
+    config = _generate_config_from_environment_and_config_file_and_defaults('/non/existing/path')
+    assert config['credentials']['client_id'] == 'env-client-id'
+
+    # Clean up
+    del os.environ['TASKCLUSTER_CLIENT_ID']
+    del os.environ['TASKCLUSTER_ACCESS_TOKEN']
+    del os.environ['TASK_OWNER_EMAIL']
+    del os.environ['TASK_PROVISIONER_ID']
+    del os.environ['TASK_WORKER_TYPE']
+    del os.environ['TASK_SCOPES']
+    del os.environ['TREEHERDER_JOB_SYMBOL']
+    del os.environ['TREEHERDER_JOB_REASON']
+    del os.environ['PULSE_USER']
+    del os.environ['PULSE_PASSWORD']
+    del os.environ['PULSE_QUEUE_NAME']
 
 
 def test_generate_final_config_object_allows_full_config_to_be_a_dict_alone():
