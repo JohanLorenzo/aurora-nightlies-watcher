@@ -1,7 +1,7 @@
 import pytest
 
-from nightlies_watcher.exceptions import NoTreeherderResultSetError, TooManyTreeherderResultSetsError
-from nightlies_watcher.treeherder import _is_job_in_list, _client, does_job_already_exist, get_routes
+from fennec_aurora_task_creator.exceptions import NoTreeherderResultSetError, TooManyTreeherderResultSetsError
+from fennec_aurora_task_creator.treeherder import _is_job_in_list, _client, does_job_already_exist, get_routes
 
 
 def test_is_job_in_list():

@@ -1,4 +1,4 @@
-recursive-include nightlies_watcher/data *
+recursive-include fennec_aurora_task_creator/data *
 
 include LICENSE
 include README.rst

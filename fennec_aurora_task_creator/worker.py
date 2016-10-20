@@ -2,9 +2,9 @@ import aioamqp
 import logging
 import json
 
-from nightlies_watcher import tc_queue, publish
-from nightlies_watcher.exceptions import TaskNotFoundError, TreeherderJobAlreadyExistError
-from nightlies_watcher.config import get_config
+from fennec_aurora_task_creator import tc_queue, publish
+from fennec_aurora_task_creator.exceptions import TaskNotFoundError, TreeherderJobAlreadyExistError
+from fennec_aurora_task_creator.config import get_config
 
 
 log = logging.getLogger(__name__)

@@ -57,5 +57,5 @@ target/
 # Vim
 *.swp
 
-# Specific to nightlies-watcher
+# Specific to fennec-aurora-task-creator
 config.json

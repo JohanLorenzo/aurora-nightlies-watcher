@@ -2,7 +2,7 @@ import logging
 
 from thclient import TreeherderClient
 
-from nightlies_watcher.exceptions import NoTreeherderResultSetError, TooManyTreeherderResultSetsError
+from fennec_aurora_task_creator.exceptions import NoTreeherderResultSetError, TooManyTreeherderResultSetsError
 
 
 logger = logging.getLogger(__name__)

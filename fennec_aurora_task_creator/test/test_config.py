@@ -4,8 +4,8 @@ import tempfile
 
 from frozendict import frozendict
 
-from nightlies_watcher.config import get_config
-from nightlies_watcher.directories import DATA_DIRECTORY
+from fennec_aurora_task_creator.config import get_config
+from fennec_aurora_task_creator.directories import DATA_DIRECTORY
 
 
 def test_get_config():

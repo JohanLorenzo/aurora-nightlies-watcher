@@ -3,7 +3,7 @@ import pytest
 
 from unittest import mock
 
-from nightlies_watcher.main import main
+from fennec_aurora_task_creator.main import main
 
 
 def test_main():

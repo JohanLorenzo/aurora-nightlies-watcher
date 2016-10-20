@@ -1,7 +1,7 @@
 import pytest
 
-from nightlies_watcher.hg_mozilla import _get_full_repository_name, get_push_id, _get_push_log_url, _pluck_push_id
-from nightlies_watcher.exceptions import NoPushIdError, TooManyPushIdsError
+from fennec_aurora_task_creator.hg_mozilla import _get_full_repository_name, get_push_id, _get_push_log_url, _pluck_push_id
+from fennec_aurora_task_creator.exceptions import NoPushIdError, TooManyPushIdsError
 
 
 def test_get_full_repository_name():

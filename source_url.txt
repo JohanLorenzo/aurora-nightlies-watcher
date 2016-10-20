@@ -1,1 +1,1 @@
-https://github.com/JohanLorenzo/nightlies-watcher
+https://github.com/JohanLorenzo/fennec-aurora-task-creator
