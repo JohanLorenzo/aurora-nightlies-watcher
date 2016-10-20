@@ -11,7 +11,7 @@ from nightlies_watcher.exceptions import NotOnlyOneApkError, TreeherderJobAlread
 
 logger = logging.getLogger(__name__)
 
-FENNEC_AURORA_APK_REGEX = re.compile(r'public/build/fennec-\d+.0a2.en-US.android.+\.apk')
+FENNEC_AURORA_APK_REGEX = re.compile(r'^public/build/fennec-\d+.0a2.en-US.android.+\.apk$')
 
 
 with open(os.path.join(PROJECT_DIRECTORY, 'source_url.txt')) as f:
