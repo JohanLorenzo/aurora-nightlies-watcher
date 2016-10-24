@@ -75,7 +75,7 @@ def _pick_valid_artifact(task_data):
         if FENNEC_AURORA_APK_REGEX.match(artifact['name']) is not None
     ]
 
-    logger.debug(apk_artifacts)
+    logger.debug('Valid artifacts candidates found: {}'.format(apk_artifacts))
     if len(apk_artifacts) != 1:
         raise NotOnlyOneApkError(apk_artifacts)
 
