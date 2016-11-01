@@ -5,8 +5,8 @@ from fennec_aurora_task_creator.exceptions import TaskNotFoundError
 _index = Index()
 
 
-def get_task_id(repository, revision, android_architecture):
-    namespace = _craft_full_namespace(repository, revision, android_architecture)
+def get_task_id(config, repository, revision, android_architecture):
+    namespace = _craft_full_namespace(config, repository, revision, android_architecture)
 
     try:
         task = _index.findTask(namespace)
@@ -17,7 +17,7 @@ def get_task_id(repository, revision, android_architecture):
         raise
 
 
-def _craft_full_namespace(repository, revision, android_architecture):
-    return 'gecko.v2.{repository}.nightly.revision.{revision}.mobile.{architecture}'.format(
+def _craft_full_namespace(config, repository, revision, android_architecture):
+    return config['taskcluster_index_pattern'].format(
         repository=repository, revision=revision, architecture=android_architecture
     )

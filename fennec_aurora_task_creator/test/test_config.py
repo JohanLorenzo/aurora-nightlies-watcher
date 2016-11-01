@@ -38,6 +38,7 @@ DEFAULT_PROVIDED_CONFIG = {
         'x86': 'android-x86-opt',
         'armv7_v15': 'android-api-15-opt',
     },
+    'taskcluster_index_pattern': 'gecko.v2.{repository}.revision.{revision}.mobile-l10n.{architecture}.multi',
     'task': {
         'name': 'Google Play Publisher',
         'description': 'Publishes Aurora builds to Google Play Store',
