@@ -25,7 +25,7 @@ def publish_if_possible(config, repository, revision):
     if treeherder.does_job_already_exist(repository, revision, job_name, tier=task_config['treeherder']['tier']):
         raise TreeherderJobAlreadyExistError(repository, revision, job_name)
 
-    tasks_data_per_architecture = _fetch_task_ids_per_achitecture(repository, revision, config['architectures_to_watch'])
+    tasks_data_per_architecture = _fetch_task_ids_per_achitecture(config, repository, revision)
     tasks_data_per_architecture = _fetch_artifacts(tasks_data_per_architecture)
     tasks_data_per_architecture = _filter_right_artifacts(tasks_data_per_architecture)
     tasks_data_per_architecture = _craft_artifact_urls(tasks_data_per_architecture)
@@ -38,10 +38,12 @@ def publish_if_possible(config, repository, revision):
     logger.info('Created task %s: %s', created_task_id, result)
 
 
-def _fetch_task_ids_per_achitecture(repository, target_revision, android_architectures_definition):
+def _fetch_task_ids_per_achitecture(config, repository, target_revision):
+    android_architectures_definition = config['architectures_to_watch']
+
     return {
         push_apk_architecture_name: {
-            'task_id': tc_index.get_task_id(repository, target_revision, tc_namespace_architecture_name)
+            'task_id': tc_index.get_task_id(config, repository, target_revision, tc_namespace_architecture_name)
         }
         for push_apk_architecture_name, tc_namespace_architecture_name
         in android_architectures_definition.items()

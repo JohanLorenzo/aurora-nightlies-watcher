@@ -203,15 +203,17 @@ def test_fetch_task_ids_per_achitecture(monkeypatch):
     from fennec_aurora_task_creator import tc_index
 
     monkeypatch.setattr(
-        tc_index, 'get_task_id', lambda _, __, architecture: 'QbosbKzTTB2E08IHTAtTfw' if architecture == 'android-x86' else 'VRzn3vi6RvSNaKTaT5u83A'
+        tc_index, 'get_task_id', lambda _, __, ___, architecture: 'QbosbKzTTB2E08IHTAtTfw' if architecture == 'android-x86' else 'VRzn3vi6RvSNaKTaT5u83A'
     )
 
-    android_architectures_definition = {
-        'armv7_v15': 'android-api-15',
-        'x86': 'android-x86',
+    config = {
+        'architectures_to_watch': {
+            'armv7_v15': 'android-api-15',
+            'x86': 'android-x86',
+        }
     }
 
-    assert _fetch_task_ids_per_achitecture('mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8', android_architectures_definition) == {
+    assert _fetch_task_ids_per_achitecture(config, 'mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8') == {
         'x86': {'task_id': 'QbosbKzTTB2E08IHTAtTfw'},
         'armv7_v15': {'task_id': 'VRzn3vi6RvSNaKTaT5u83A'},
     }
@@ -264,6 +266,7 @@ def test_publish_if_possible(monkeypatch):
           'x86': 'android-x86-opt',
           'armv7_v15': 'android-api-15-opt'
         },
+        'taskcluster_index_pattern': 'gecko.v2.{repository}.nightly.revision.{revision}.mobile.{architecture}',
     }
 
     UTC_NOW = datetime.datetime.utcnow()

@@ -26,6 +26,12 @@ KEYS_AND_DEFAULT_VALUES = (
         },
         'is_flat': False
     },
+    {
+        'path': 'taskcluster_index_pattern', 'environment_key': 'TASKCLUSTER_INDEX_PATTERN',
+        # Warning: 'gecko.v2.{repository}.nightly.revision.{revision}.mobile.{architecture}' actually returns en-US
+        # builds and not multi-locale ones. The value below are actually nightlies
+        'default_value': 'gecko.v2.{repository}.revision.{revision}.mobile-l10n.{architecture}.multi'
+    },
 
     {'path': 'task/name', 'environment_key': 'TASK_NAME', 'default_value': 'Google Play Publisher'},
     {'path': 'task/description', 'environment_key': 'TASK_DESCRIPTION', 'default_value': 'Publishes Aurora builds to Google Play Store'},
