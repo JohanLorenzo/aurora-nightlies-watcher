@@ -55,8 +55,11 @@ DEFAULT_PROVIDED_CONFIG = {
         'host': 'pulse.mozilla.org',
         'port': 5671,
         'exchanges': [{
-            'path': "exchange/taskcluster-queue/v1/task-completed",
-            'routing_keys': ["route.index.gecko.v2.mozilla-aurora.nightly.latest.mobile.#"]
+            'path': 'exchange/taskcluster-queue/v1/task-completed',
+            'routing_keys': [
+                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi#',
+                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi#',
+            ]
         }],
     },
     'verbose': False,
@@ -150,8 +153,11 @@ def test_generate_final_config_object_fulfills_default_values():
     assert final_config['pulse']['host'] == 'pulse.mozilla.org'
     assert final_config['pulse']['port'] == 5671
     assert final_config['pulse']['exchanges'] == [{
-        'path': "exchange/taskcluster-queue/v1/task-completed",
-        'routing_keys': ["route.index.gecko.v2.mozilla-aurora.nightly.latest.mobile.#"]
+        'path': 'exchange/taskcluster-queue/v1/task-completed',
+        'routing_keys': [
+            'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi#',
+            'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi#'
+        ],
     }]
 
     assert not(final_config['verbose'])
