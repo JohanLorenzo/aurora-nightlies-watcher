@@ -19,12 +19,16 @@ pip install fennec-aurora-task-creator
 
 ## Configure
 
+Configuration can be provided by 2 ways: either a configuration file, or enviroment variables. Matching between json paths and environment variables can be found [in config.py](https://github.com/mozilla-releng/fennec-aurora-task-creator/blob/master/fennec_aurora_task_creator/config.py). Default values are also defailled there.
+
+### Get started with the config file
+
 ``` shell
     cp config_example.json config.json
     # edit it with your favorite text editor
 ```
 
-There are many values to edit. Example values and details below should give you a hint about what to provide. If not, please contact the author for other unclear areas.
+Only required configuration is defined in there. You may fine-tune configuration by looking at `config.py` linked just above.
 
 ### Taskcluster credentials
 

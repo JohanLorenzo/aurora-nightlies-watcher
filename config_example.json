@@ -3,38 +3,17 @@
     "client_id": "YOUR_CLIENT_ID",
     "access_token": "YOUR_ACCESS_TOKEN"
   },
-  "architectures_to_watch": {
-    "x86": "android-x86-opt",
-    "armv7_v15": "android-api-15-opt"
-  },
   "task": {
-    "name": "Google Play Publisher",
-    "description": "Publishes Aurora builds to Google Play Store",
-    "owner": "r@m.c",
+    "owner": "YOUR_EMAIL",
     "treeherder": {
-      "platform": "Android",
-      "group_name": "Publisher",
-      "group_symbol": "pub",
-      "symbol": "gp",
-      "reason": "The Nightly scheduler named 'fennec-aurora-task-creator' triggered this build",
-      "tier": 3,
-      "is_opt": true
+      "reason": "A reason why this job was created"
     },
-    "provisioner_id": "scriptworker-prov-v1",
-    "worker_type": "pushapk-v1",
-    "scopes": ["project:releng:googleplay:aurora"],
-    "google_play_track": "alpha"
+    "provisioner_id": "provisioner-on-which-tasks-will-run",
+    "worker_type": "workers-on-which-tasks-will-run",
+    "scopes": ["some:scopes"],
   },
   "pulse": {
-    "host": "pulse.mozilla.org",
-    "port": "5671",
     "user": "YOUR_USER",
     "password": "YOUR_PASSWORD",
-    "queue": "YOUR_QUEUE_NAME",
-    "exchanges": [{
-      "path": "exchange/taskcluster-queue/v1/task-completed",
-      "routing_keys": ["route.index.gecko.v2.mozilla-aurora.nightly.latest.mobile.#"]
-    }]
-  },
-  "verbose": true
+  }
 }
