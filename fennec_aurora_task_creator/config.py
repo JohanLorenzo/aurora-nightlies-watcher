@@ -60,8 +60,8 @@ KEYS_AND_DEFAULT_VALUES = (
         'default_value': [{
             'path': 'exchange/taskcluster-queue/v1/task-completed',
             'routing_keys': [
-                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi#',
-                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi#',
+                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi',
+                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi',
             ],
         }],
         'is_flat': False
