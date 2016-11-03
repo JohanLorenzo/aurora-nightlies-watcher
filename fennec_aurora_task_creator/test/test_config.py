@@ -57,8 +57,8 @@ DEFAULT_PROVIDED_CONFIG = {
         'exchanges': [{
             'path': 'exchange/taskcluster-queue/v1/task-completed',
             'routing_keys': [
-                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi#',
-                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi#',
+                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi',
+                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi',
             ]
         }],
     },
@@ -155,8 +155,8 @@ def test_generate_final_config_object_fulfills_default_values():
     assert final_config['pulse']['exchanges'] == [{
         'path': 'exchange/taskcluster-queue/v1/task-completed',
         'routing_keys': [
-            'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi#',
-            'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi#'
+            'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi',
+            'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi'
         ],
     }]
 
