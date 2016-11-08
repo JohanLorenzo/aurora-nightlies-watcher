@@ -51,9 +51,10 @@ async def _dispatch(channel, body, envelope, _):
     config = get_config()
 
     try:
+        route_pattern = config['taskcluster_index_pattern']
         task_definition = tc_queue.fetch_task_definition(task_id)
-        revision = tc_queue.pluck_revision(task_definition)
-        repository = tc_queue.pluck_repository(task_definition)
+        revision = tc_queue.pluck_revision(route_pattern, task_definition)
+        repository = tc_queue.pluck_repository(route_pattern, task_definition)
 
         log.info('Processing revision "{}" from repository "{}" (triggered by completed task "{}")'.format(
             revision, repository, task_id

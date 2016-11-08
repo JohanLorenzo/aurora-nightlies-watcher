@@ -1,44 +1,55 @@
 import pytest
 
-from fennec_aurora_task_creator.tc_queue import fetch_task_definition, pluck_architecture, pluck_repository, pluck_revision, \
-    _queue, fetch_artifacts_list, create_task
+from fennec_aurora_task_creator.tc_queue import fetch_task_definition, pluck_architecture, pluck_repository, \
+    pluck_revision, _queue, fetch_artifacts_list, create_task, _get_regex_pattern_from_string_pattern
 from fennec_aurora_task_creator.exceptions import UnmatchedRouteError
+
+ROUTE_PATTERN = 'gecko.v2.{repository}.revision.{revision}.mobile-l10n.{architecture}.multi'
 
 TASK_DEFINITION = {
     'routes': [
-        'index.gecko.v2.mozilla-aurora.nightly.revision.7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8.mobile.android-api-15',
+        'index.gecko.v2.mozilla-aurora.revision.d9cfe58247e85c05ad98a4e60045bbdd62e0ec2b.mobile-l10n.android-api-15-opt.multi',
+        'index.gecko.v2.mozilla-aurora.pushdate.2016.11.08.20161108081244.mobile-l10n.android-api-15-opt.multi',
+        'index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi',
+        'index.buildbot.branches.mozilla-aurora.android-api-15',
+        'index.buildbot.revisions.d9cfe58247e85c05ad98a4e60045bbdd62e0ec2b.mozilla-aurora.android-api-15',
     ]
 }
 
 
 def test_pluck_repository():
-    assert pluck_repository(TASK_DEFINITION) == 'mozilla-aurora'
+    assert pluck_repository(ROUTE_PATTERN, TASK_DEFINITION) == 'mozilla-aurora'
 
     with pytest.raises(UnmatchedRouteError):
-        # Not nightly
-        pluck_repository({
+        # Not mobile-l10n
+        pluck_repository(ROUTE_PATTERN, {
             'routes': ['index.gecko.v2.mozilla-aurora.revision.7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8.mobile.android-api-15']
         })
 
 
 def test_pluck_revision():
-    assert pluck_revision(TASK_DEFINITION) == '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8'
+    assert pluck_revision(ROUTE_PATTERN, TASK_DEFINITION) == 'd9cfe58247e85c05ad98a4e60045bbdd62e0ec2b'
 
     with pytest.raises(UnmatchedRouteError):
         # No revision
-        pluck_repository({
-            'routes': ['index.gecko.v2.mozilla-aurora.latest.mobile.android-api-15']
+        pluck_repository(ROUTE_PATTERN, {
+            'routes': ['index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi']
         })
 
 
 def test_pluck_architecture():
-    assert pluck_architecture(TASK_DEFINITION) == 'android-api-15'
+    assert pluck_architecture(ROUTE_PATTERN, TASK_DEFINITION) == 'android-api-15-opt'
 
     with pytest.raises(UnmatchedRouteError):
         # Not mobile
-        pluck_repository({
+        pluck_repository(ROUTE_PATTERN, {
             'routes': ['index.gecko.v2.mozilla-aurora.revision.7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8.firefox.win32']
         })
+
+
+def test_get_regex_pattern_from_string_pattern():
+    assert _get_regex_pattern_from_string_pattern(ROUTE_PATTERN) == \
+        r'index\.gecko\.v2\.([^.]+)\.revision\.([^.]+)\.mobile-l10n\.([^.]+)\.multi'
 
 
 def test_fetch_task_definition(monkeypatch):
