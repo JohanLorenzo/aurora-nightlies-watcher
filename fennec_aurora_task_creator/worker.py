@@ -60,18 +60,25 @@ async def _dispatch(channel, body, envelope, _):
             revision, repository, task_id
         ))
         publish.publish_if_possible(config, repository, revision)
+        await _mark_message_as_read(channel, envelope, task_id)
 
     except TreeherderJobAlreadyExistError:
-        log.warn('A treeherder job already exists for revision "{}" in repository "{}"'.format(revision, repository))
+        log.warn('A treeherder job already exists for revision "{}" in repository "{}"'.format(
+            revision, repository
+        ))
+        await _mark_message_as_read(channel, envelope, task_id)
 
     except TaskNotFoundError as e:
         log.info('Revision "{}" does not have architecture "{}" completed yet'.format(
             revision, e.missing_android_architecture
         ))
+        await _mark_message_as_read(channel, envelope, task_id)
 
     except Exception as e:
         log.exception('Exception "{}" caught by generic exception trap'.format(e))
+        log.info('Message kept (not marked as read) due to unexpected exception')
 
-    finally:
-        log.info('Marking message as read. Processed task "{}"'.format(task_id))
-        await channel.basic_client_ack(delivery_tag=envelope.delivery_tag)
+
+async def _mark_message_as_read(channel, envelope, task_id):
+    log.info('Marking message as read. Processed task "{}"'.format(task_id))
+    await channel.basic_client_ack(delivery_tag=envelope.delivery_tag)
