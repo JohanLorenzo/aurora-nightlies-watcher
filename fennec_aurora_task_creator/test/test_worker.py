@@ -51,22 +51,21 @@ async def test_dispatch(monkeypatch):
         'provisionerId': 'null-provisioner',
         'workerType': 'buildbot',
         'schedulerId': '-',
-        'taskGroupId': 'QbosbKzTTB2E08IHTAtTfw',
+        'taskGroupId': 'Yd4lmOUIS9u1k0_siw8zlg',
         'dependencies': [],
         'requires': 'all-completed',
         'routes': [
-            'index.gecko.v2.mozilla-aurora.nightly.2016.10.15.revision.7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8.mobile.android-x86-opt',
-            'index.gecko.v2.mozilla-aurora.nightly.2016.10.15.latest.mobile.android-x86-opt',
-            'index.gecko.v2.mozilla-aurora.nightly.revision.7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8.mobile.android-x86-opt',
-            'index.gecko.v2.mozilla-aurora.nightly.latest.mobile.android-x86-opt',
-            'index.buildbot.branches.mozilla-aurora.android-x86',
-            'index.buildbot.revisions.7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8.mozilla-aurora.android-x86'
+            'index.gecko.v2.mozilla-aurora.revision.d9cfe58247e85c05ad98a4e60045bbdd62e0ec2b.mobile-l10n.android-api-15-opt.multi',
+            'index.gecko.v2.mozilla-aurora.pushdate.2016.11.08.20161108081244.mobile-l10n.android-api-15-opt.multi',
+            'index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi',
+            'index.buildbot.branches.mozilla-aurora.android-api-15',
+            'index.buildbot.revisions.d9cfe58247e85c05ad98a4e60045bbdd62e0ec2b.mozilla-aurora.android-api-15',
         ],
         'priority': 'normal',
         'retries': 5,
-        'created': '2016-10-15T09:02:46.210Z',
-        'deadline': '2016-10-15T10:02:46.210Z',
-        'expires': '2017-10-15T10:02:46.210Z',
+        'created': '2016-11-08T10:09:26.312Z',
+        'deadline': '2016-11-08T11:09:26.312Z',
+        'expires': '2017-11-08T11:09:26.312Z',
         'scopes': [],
         'payload': {},
         'metadata': {
@@ -78,7 +77,7 @@ async def test_dispatch(monkeypatch):
         'tags': {},
         'extra': {
             'index': {
-                'rank': 1476471372
+                'rank': 1478592764
             }
         }
     })
@@ -91,6 +90,7 @@ async def test_dispatch(monkeypatch):
 
     await _dispatch(channel, body, envelope, None)
     channel.basic_client_ack.assert_called_once_with(delivery_tag=envelope.delivery_tag)
+    channel.basic_client_ack.reset_mock()
 
     def raise_job_already_exists(_, __, ___):
         raise TreeherderJobAlreadyExistError('', '', '')
@@ -98,6 +98,8 @@ async def test_dispatch(monkeypatch):
     monkeypatch.setattr(publish, 'publish_if_possible', raise_job_already_exists)
     # JobAlreadyExistError should explictly be processed within _dispatch
     await _dispatch(channel, body, envelope, None)
+    channel.basic_client_ack.assert_called_once_with(delivery_tag=envelope.delivery_tag)
+    channel.basic_client_ack.reset_mock()
 
     def raise_task_not_found(_, __, ___):
         raise TaskNotFoundError('', '', '')
@@ -105,13 +107,16 @@ async def test_dispatch(monkeypatch):
     monkeypatch.setattr(publish, 'publish_if_possible', raise_task_not_found)
     # TaskNotFoundError should explictly be processed within _dispatch
     await _dispatch(channel, body, envelope, None)
+    channel.basic_client_ack.assert_called_once_with(delivery_tag=envelope.delivery_tag)
+    channel.basic_client_ack.reset_mock()
 
     def raise_other_exception(_, __, ___):
         raise Exception()
 
     monkeypatch.setattr(publish, 'publish_if_possible', raise_other_exception)
-    # Other exceptions should be caught by the general trap
+    # Other exceptions should be caught by the general trap, but shouldn't mark the message as read
     await _dispatch(channel, body, envelope, None)
+    channel.basic_client_ack.assert_not_called()
 
 
 @pytest.mark.asyncio
