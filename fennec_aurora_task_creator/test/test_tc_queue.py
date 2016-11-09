@@ -1,7 +1,7 @@
 import pytest
 
-from fennec_aurora_task_creator.tc_queue import fetch_task_definition, pluck_architecture, pluck_repository, \
-    pluck_revision, _queue, fetch_artifacts_list, create_task, _get_regex_pattern_from_string_pattern
+from fennec_aurora_task_creator.tc_queue import fetch_task_definition, pluck_repository, pluck_revision, \
+    _queue, fetch_artifacts_list, create_task, _get_regex_pattern_from_string_pattern
 from fennec_aurora_task_creator.exceptions import UnmatchedRouteError
 
 ROUTE_PATTERN = 'gecko.v2.{repository}.revision.{revision}.mobile-l10n.{architecture}.multi'
@@ -34,16 +34,6 @@ def test_pluck_revision():
         # No revision
         pluck_repository(ROUTE_PATTERN, {
             'routes': ['index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi']
-        })
-
-
-def test_pluck_architecture():
-    assert pluck_architecture(ROUTE_PATTERN, TASK_DEFINITION) == 'android-api-15-opt'
-
-    with pytest.raises(UnmatchedRouteError):
-        # Not mobile
-        pluck_repository(ROUTE_PATTERN, {
-            'routes': ['index.gecko.v2.mozilla-aurora.revision.7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8.firefox.win32']
         })
 
 
