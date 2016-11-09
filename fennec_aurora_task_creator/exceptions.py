@@ -13,9 +13,14 @@ class UnmatchedRouteError(Exception):
         super().__init__('No {} was found in the routes of: {}'.format(field_name, task_definition))
 
 
-class NotOnlyOneApkError(Exception):
+class NoApkFoundError(Exception):
+    def __init__(self, all_artifacts):
+        super().__init__('No APK matching regex found. Candidate artifacts were: {}'.format(all_artifacts))
+
+
+class MoreThanOneApkFoundError(Exception):
     def __init__(self, matched_artifacts):
-        super().__init__('Not only one artifact matches the APK regex. Matched artifacts: {}'.format(matched_artifacts))
+        super().__init__('More than one artifact matches the APK regex. Matched artifacts:: {}'.format(matched_artifacts))
 
 
 class TaskNotFoundError(Exception):

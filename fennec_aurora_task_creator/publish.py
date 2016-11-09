@@ -6,12 +6,12 @@ import taskcluster
 
 from fennec_aurora_task_creator import treeherder, hg_mozilla, tc_index, tc_queue
 from fennec_aurora_task_creator.directories import PROJECT_DIRECTORY
-from fennec_aurora_task_creator.exceptions import NotOnlyOneApkError, TreeherderJobAlreadyExistError
+from fennec_aurora_task_creator.exceptions import NoApkFoundError, MoreThanOneApkFoundError, TreeherderJobAlreadyExistError
 
 
 logger = logging.getLogger(__name__)
 
-FENNEC_AURORA_APK_REGEX = re.compile(r'^public/build/fennec-\d+.0a2.en-US.android.+\.apk$')
+FENNEC_AURORA_APK_REGEX = re.compile(r'^public/build/fennec-\d+\.0a2\.multi\.android.+\.apk$')
 
 
 with open(os.path.join(PROJECT_DIRECTORY, 'source_url.txt')) as f:
@@ -71,15 +71,21 @@ def _filter_right_artifacts(tasks_data_per_architecture):
 
 
 def _pick_valid_artifact(task_data):
+    all_artifacts = [artifact['name'] for artifact in task_data['all_artifacts']]
+
     apk_artifacts = [
-        artifact['name']
-        for artifact in task_data['all_artifacts']
-        if FENNEC_AURORA_APK_REGEX.match(artifact['name']) is not None
+        artifact
+        for artifact in all_artifacts
+        if FENNEC_AURORA_APK_REGEX.match(artifact) is not None
     ]
 
     logger.debug('Valid artifacts candidates found: {}'.format(apk_artifacts))
-    if len(apk_artifacts) != 1:
-        raise NotOnlyOneApkError(apk_artifacts)
+    number_of_artifacts_found = len(apk_artifacts)
+
+    if number_of_artifacts_found == 0:
+        raise NoApkFoundError(all_artifacts)
+    elif number_of_artifacts_found > 1:
+        raise MoreThanOneApkFoundError(apk_artifacts)
 
     return apk_artifacts[0]
 
