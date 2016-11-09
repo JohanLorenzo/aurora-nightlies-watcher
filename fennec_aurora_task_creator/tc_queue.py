@@ -29,10 +29,6 @@ def pluck_revision(route_pattern, task_definition):
     return _match_field_in_routes(route_pattern, task_definition, 'revision', 2)
 
 
-def pluck_architecture(route_pattern, task_definition):
-    return _match_field_in_routes(route_pattern, task_definition, 'architecture', 3)
-
-
 def _match_field_in_routes(route_pattern, task_definition, field_name, field_number):
     route_matcher = re.compile(_get_regex_pattern_from_string_pattern(route_pattern))
 
