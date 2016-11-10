@@ -138,6 +138,7 @@ def _craft_task_data(config, repository, revision, hg_push_id, tasks_data_per_ar
         'payload': {
             'apks': apks,
             'google_play_track': task_config['google_play_track'],
+            'dry_run': task_config['dry_run'],
         },
         'provisionerId': task_config['provisioner_id'],
         'requires': 'all-completed',
