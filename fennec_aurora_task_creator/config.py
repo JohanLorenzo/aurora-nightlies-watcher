@@ -41,6 +41,7 @@ KEYS_AND_DEFAULT_VALUES = (
     {'path': 'task/worker_type', 'environment_key': 'TASK_WORKER_TYPE'},
     {'path': 'task/scopes', 'environment_key': 'TASK_SCOPES', 'is_flat': False},
     {'path': 'task/google_play_track', 'environment_key': 'TASK_GOOGLE_PLAY_TRACK', 'default_value': 'alpha'},
+    {'path': 'task/dry_run', 'environment_key': 'TASK_DRY_RUN', 'default_value': True},
 
     {'path': 'task/treeherder/platform', 'environment_key': 'TREEHERDER_PLATFORM', 'default_value': 'Android'},
     {'path': 'task/treeherder/group_name', 'environment_key': 'TREEHERDER_GROUP_NAME', 'default_value': 'Publisher'},

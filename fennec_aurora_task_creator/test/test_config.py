@@ -42,6 +42,7 @@ DEFAULT_PROVIDED_CONFIG = {
     'task': {
         'name': 'Google Play Publisher',
         'description': 'Publishes Aurora builds to Google Play Store',
+        'dry_run': True,
         'google_play_track': 'alpha',
         'treeherder': {
             'platform': 'Android',

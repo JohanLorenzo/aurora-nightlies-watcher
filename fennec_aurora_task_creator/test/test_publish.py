@@ -141,7 +141,8 @@ def test_craft_task_data(monkeypatch):
             'provisioner_id': 'test-provisioner',
             'worker_type': 'test-worker',
             'scopes': ['project:releng:googleplay:aurora'],
-            'google_play_track': 'alpha'
+            'dry_run': True,
+            'google_play_track': 'alpha',
         },
     }
 
@@ -186,6 +187,7 @@ def test_craft_task_data(monkeypatch):
                 'x86': 'https://queue.taskcluster.net/v1/task/NtEQavvdQRaYQGryyJMPnA/artifacts/public/build/fennec-51.0a2.multi.android-i386.apk',
                 'armv7_v15':  'https://queue.taskcluster.net/v1/task/TJtktGqCRmyyWKH_YJ4sBQ/artifacts/public/build/fennec-51.0a2.multi.android-arm.apk',
             },
+            'dry_run': True,
             'google_play_track': 'alpha',
         },
         'provisionerId': 'test-provisioner',
@@ -261,7 +263,8 @@ def test_publish_if_possible(monkeypatch):
             'provisioner_id': 'test-provisioner',
             'worker_type': 'test-worker',
             'scopes': ['project:releng:googleplay:aurora'],
-            'google_play_track': 'alpha'
+            'dry_run': True,
+            'google_play_track': 'alpha',
         },
         'architectures_to_watch': {
           'x86': 'android-x86-opt',
@@ -310,6 +313,7 @@ def test_publish_if_possible(monkeypatch):
                     'x86': 'https://queue.taskcluster.net/v1/task/NtEQavvdQRaYQGryyJMPnA/artifacts/public/build/fennec-51.0a2.multi.android-i386.apk',
                     'armv7_v15':  'https://queue.taskcluster.net/v1/task/TJtktGqCRmyyWKH_YJ4sBQ/artifacts/public/build/fennec-51.0a2.multi.android-arm.apk',
                 },
+                'dry_run': True,
                 'google_play_track': 'alpha',
             },
             'provisionerId': 'test-provisioner',
