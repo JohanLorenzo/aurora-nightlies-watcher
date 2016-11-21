@@ -4,6 +4,7 @@ import logging
 import os
 
 from collections import defaultdict
+from distutils.util import strtobool
 from frozendict import frozendict
 
 from fennec_aurora_task_creator.directories import PROJECT_DIRECTORY
@@ -154,6 +155,10 @@ def _get_environment_or_config_or_default_value(config_from_json_file, path_list
 
     if value is None:
         raise MissingConfigurationError(environment_key, '/'.join(path_list))
+
+    if isinstance(default_value, bool) and not isinstance(value, bool):
+        value = bool(strtobool(value))  # strtobool returns either 0 or 1
+
     return value
 
 
