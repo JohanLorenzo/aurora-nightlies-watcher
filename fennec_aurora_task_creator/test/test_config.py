@@ -221,3 +221,30 @@ def test_get_environment_or_config_or_default_value():
     assert _get_environment_or_config_or_default_value(config_json, path_list, env_key, default_value) == \
         'environment_value'
     del os.environ['MANY_KEYS']
+
+
+def test_get_environment_or_config_or_default_value_supports_boolean_values():
+    path_list = ('boolean_attribute',)
+    env_key = 'BOOLEAN_ATTRIBUTE'
+    default_value = True
+
+    config_json = {}
+    assert _get_environment_or_config_or_default_value(config_json, path_list, env_key, default_value) is True
+
+    config_json['boolean_attribute'] = 'True'
+    assert _get_environment_or_config_or_default_value(config_json, path_list, env_key, default_value) is True
+
+    os.environ['BOOLEAN_ATTRIBUTE'] = 'true'
+    assert _get_environment_or_config_or_default_value(config_json, path_list, env_key, default_value) is True
+
+    os.environ['BOOLEAN_ATTRIBUTE'] = 'OFF'
+    assert _get_environment_or_config_or_default_value(config_json, path_list, env_key, default_value) is False
+
+    os.environ['BOOLEAN_ATTRIBUTE'] = '0'
+    assert _get_environment_or_config_or_default_value(config_json, path_list, env_key, default_value) is False
+
+    os.environ['BOOLEAN_ATTRIBUTE'] = ''
+    with pytest.raises(ValueError):
+        _get_environment_or_config_or_default_value(config_json, path_list, env_key, default_value)
+
+    del os.environ['BOOLEAN_ATTRIBUTE']
