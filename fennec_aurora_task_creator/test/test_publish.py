@@ -286,7 +286,7 @@ def test_publish_if_possible(monkeypatch):
         assert payload == {
             'created': UTC_NOW,
             'deadline': UTC_NOW + datetime.timedelta(hours=1),
-            'dependencies': ['NtEQavvdQRaYQGryyJMPnA', 'TJtktGqCRmyyWKH_YJ4sBQ'],
+            'dependencies': ['Gzjb-lzpQiy2Cszfol-pdA', 'N9KWjt0QTCmqsp_3_wWwEA'],
             'extra': {
                 'treeherder': {
                     'reason': 'Because this is a test',
@@ -310,8 +310,8 @@ def test_publish_if_possible(monkeypatch):
             },
             'payload': {
                 'apks': {
-                    'x86': 'https://queue.taskcluster.net/v1/task/NtEQavvdQRaYQGryyJMPnA/artifacts/public/build/fennec-51.0a2.multi.android-i386.apk',
-                    'armv7_v15':  'https://queue.taskcluster.net/v1/task/TJtktGqCRmyyWKH_YJ4sBQ/artifacts/public/build/fennec-51.0a2.multi.android-arm.apk',
+                    'x86': 'https://queue.taskcluster.net/v1/task/Gzjb-lzpQiy2Cszfol-pdA/artifacts/public/build/fennec-51.0a2.multi.android-i386.apk',
+                    'armv7_v15':  'https://queue.taskcluster.net/v1/task/N9KWjt0QTCmqsp_3_wWwEA/artifacts/public/build/fennec-51.0a2.multi.android-arm.apk',
                 },
                 'dry_run': True,
                 'google_play_track': 'alpha',
