@@ -13,6 +13,7 @@ def test_get_push_log_url():
     assert _get_push_log_url('releases/mozilla-aurora', '7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8') == \
         'https://hg.mozilla.org/releases/mozilla-aurora/json-pushes?changeset=7bc185ff4e8b66536bf314f9cf8b03f7d7f0b9b8'
 
+
 PUSH_LOG_JSON = {
     '10148': {
         'changesets': [
