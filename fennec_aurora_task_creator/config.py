@@ -157,10 +157,7 @@ def _get_environment_or_config_or_default_value(config_from_json_file, path_list
     if value is None:
         raise MissingConfigurationError(environment_key, '/'.join(path_list))
 
-    if isinstance(default_value, bool) and not isinstance(value, bool):
-        value = bool(strtobool(value))  # strtobool returns either 0 or 1
-
-    return value
+    return _convert_value_to_correct_type(value, default_value)
 
 
 def _set_dict_path(recursive_dictionary, path_list, value):
@@ -172,3 +169,12 @@ def _set_dict_path(recursive_dictionary, path_list, value):
 
 def _get_dict_path(dictionary, path_list):
     return dictionary[path_list[0]] if len(path_list) == 1 else _get_dict_path(dictionary[path_list[0]], path_list[1:])
+
+
+def _convert_value_to_correct_type(value, default_value=None):
+    type_of_default_value = type(default_value)
+    if default_value is not None and type(value) is not type_of_default_value:
+        # strtobool returns either 0 or 1, so we need to convert it back to bool, in order to be able to use conditions
+        # like `is True`
+        value = bool(strtobool(value)) if type_of_default_value is bool else type_of_default_value(value)
+    return value

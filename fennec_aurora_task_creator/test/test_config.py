@@ -173,6 +173,45 @@ def test_generate_final_config_object_allows_environment_variables():
     del os.environ['TASKCLUSTER_ACCESS_TOKEN']
 
 
+@pytest.mark.parametrize('env_key, env_value, expected_value, final_config_keys', [
+    # Test out every parameter that doesn't take a string as a default param
+    ('TREEHERDER_TIER', '3', 3, ['task', 'treeherder', 'tier']),
+    ('PULSE_PORT', '1234', 1234, ['pulse', 'port']),
+
+    ('TASK_DRY_RUN', 'False', False, ['task', 'dry_run']),
+    ('TREEHERDER_IS_OPT', 'True', True, ['task', 'treeherder', 'is_opt']),
+
+    # Test strings are correctly converted to bool
+    ('VERBOSE_MODE', 'y', True, ['verbose']),
+    ('VERBOSE_MODE', 'yes', True, ['verbose']),
+    ('VERBOSE_MODE', 't', True, ['verbose']),
+    ('VERBOSE_MODE', 'true', True, ['verbose']),
+    ('VERBOSE_MODE', 'on', True, ['verbose']),
+    ('VERBOSE_MODE', '1', True, ['verbose']),
+
+    ('VERBOSE_MODE', 'n', False, ['verbose']),
+    ('VERBOSE_MODE', 'no', False, ['verbose']),
+    ('VERBOSE_MODE', 'f', False, ['verbose']),
+    ('VERBOSE_MODE', 'false', False, ['verbose']),
+    ('VERBOSE_MODE', 'off', False, ['verbose']),
+    ('VERBOSE_MODE', '0', False, ['verbose']),
+
+    # Test values that have no default (aka being None), so conversion might be broken
+    ('PULSE_USER', 'a-user', 'a-user', ['pulse', 'user']),
+])
+def test_generate_final_config_object_converts_type_of_environment_variables(env_key, env_value, expected_value, final_config_keys):
+    os.environ[env_key] = str(env_value)    # Only strings are passed via environment
+    final_config = _generate_final_config_object(MINIMAL_REQUIRED_CONFIG)
+
+    value = final_config[final_config_keys.pop(0)]
+    for key in final_config_keys:
+        value = value[key]
+
+    assert value == expected_value
+
+    del os.environ[env_key]
+
+
 def test_generate_final_config_parses_json_for_certain_keys():
     os.environ['TASK_SCOPES'] = '["project:releng:googleplay:aurora"]'
 
