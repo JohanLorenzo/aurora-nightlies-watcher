@@ -29,9 +29,7 @@ KEYS_AND_DEFAULT_VALUES = (
     },
     {
         'path': 'taskcluster_index_pattern', 'environment_key': 'TASKCLUSTER_INDEX_PATTERN',
-        # Warning: 'gecko.v2.{repository}.nightly.revision.{revision}.mobile.{architecture}' actually returns en-US
-        # builds and not multi-locale ones. The value below are actually nightlies
-        'default_value': 'gecko.v2.{repository}.revision.{revision}.mobile-l10n.{architecture}.multi'
+        'default_value': 'gecko.v2.{repository}.signed-nightly.nightly.revision.{revision}.mobile.{architecture}'
     },
 
     {'path': 'task/name', 'environment_key': 'TASK_NAME', 'default_value': 'Google Play Publisher'},
@@ -62,8 +60,8 @@ KEYS_AND_DEFAULT_VALUES = (
         'default_value': [{
             'path': 'exchange/taskcluster-queue/v1/task-completed',
             'routing_keys': [
-                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi',
-                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi',
+                'route.index.gecko.v2.mozilla-aurora.signed-nightly.nightly.latest.mobile.android-api-15-opt',
+                'route.index.gecko.v2.mozilla-aurora.signed-nightly.nightly.latest.mobile.android-x86-opt',
             ],
         }],
         'is_flat': False

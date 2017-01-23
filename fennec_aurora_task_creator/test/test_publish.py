@@ -12,55 +12,84 @@ from fennec_aurora_task_creator.publish import publish_if_possible, _filter_righ
 def test_filter_right_artifacts():
     data = {
         'x86': {
-            'task_id': 'NtEQavvdQRaYQGryyJMPnA',
-            # Real data contains way more artifacts
+            'task_id': 'Klg1GnM4TAqeBqgz-FOdtw',
             'all_artifacts': [{
-                'contentType': 'application/json',
-                'storageType': 's3',
-                'name': 'public/build/buildbot_properties.json',
-                'expires': '2016-11-09T10:10:47.305Z',
+              'storageType': 's3',
+              'name': 'public/build/en-US/target.apk',
+              'expires': '2017-02-02T23:18:22.491Z',
+              'contentType': 'application/binary'
             }, {
-                'contentType': 'application/octet-stream',
-                'storageType': 's3',
-                'name': 'public/build/fennec-51.0a2.multi.android-i386.apk',
-                'expires': '2016-11-09T11:10:47.305Z',
+              'storageType': 's3',
+              'name': 'public/build/target.apk',
+              'expires': '2017-02-02T23:18:22.489Z',
+              'contentType': 'application/binary'
             }, {
-                'contentType': 'text/plain',
-                'storageType': 's3',
-                'name': 'public/build/fennec-51.0a2.multi.android-i386.json',
-                'expires': '2017-11-09T11:10:47.305Z',
+              'storageType': 's3',
+              'name': 'public/chainOfTrust.json.asc',
+              'expires': '2017-02-02T23:18:22.490Z',
+              "contentType": 'application/binary'
+            }, {
+              'storageType': 's3',
+              'name': 'public/logs/chain_of_trust.log',
+              'expires': '2017-02-02T23:18:22.487Z',
+              'contentType': 'text/plain'
+            }, {
+              'storageType': 's3',
+              'name': 'public/logs/task_error.log',
+              'expires': '2017-02-02T23:18:22.491Z',
+              'contentType': 'text/plain'
+            }, {
+              'storageType': 's3',
+              'name': 'public/logs/task_output.log',
+              'expires': '2017-02-02T23:18:22.489Z',
+              'contentType': 'text/plain'
             }],
         },
 
         'armv7_v15': {
-            'task_id': 'TJtktGqCRmyyWKH_YJ4sBQ',
+            'task_id': 'TYPNy9Q0QvSNiijBjGVdhA',
             'all_artifacts': [{
-                'contentType': 'application/json',
-                'storageType': 's3',
-                'name': 'public/build/buildbot_properties.json',
-                'expires': '2017-11-08T10:10:35.851Z',
+              'storageType': 's3',
+              'name': 'public/build/en-US/target.apk',
+              'expires': '2017-02-02T23:11:29.842Z',
+              'contentType': 'application/binary'
             }, {
-                'contentType': 'application/octet-stream',
-                'storageType': 's3',
-                'name': 'public/build/fennec-51.0a2.multi.android-arm.apk',
-                'expires': '2017-11-08T10:09:58.279Z',
+              'storageType': 's3',
+              'name': 'public/build/target.apk',
+              'expires': '2017-02-02T23:11:29.840Z',
+              'contentType': 'application/binary'
             }, {
-                'contentType': 'text/plain',
-                'storageType': 's3',
-                'name': 'public/build/fennec-51.0a2.multi.android-arm.json',
-                'expires': '2017-11-08T10:10:23.623Z',
+              'storageType': "s3",
+              'name': 'public/chainOfTrust.json.asc',
+              'expires': '2017-02-02T23:11:29.841Z',
+              'contentType': 'application/binary'
+            }, {
+              'storageType': 's3',
+              'name': 'public/logs/chain_of_trust.log',
+              'expires': '2017-02-02T23:11:29.837Z',
+              'contentType': 'text/plain'
+            }, {
+              'storageType': 's3',
+              'name': 'public/logs/task_error.log',
+              'expires': '2017-02-02T23:11:29.842Z',
+              'contentType': 'text/plain'
+            }, {
+              'storageType': 's3',
+              'name': 'public/logs/task_output.log',
+              'expires': '2017-02-02T23:11:29.839Z',
+              'contentType': 'text/plain'
             }],
         },
     }
 
     assert _filter_right_artifacts(data) == {
         'x86': {
-            'task_id': 'NtEQavvdQRaYQGryyJMPnA',
-            'target_artifact': 'public/build/fennec-51.0a2.multi.android-i386.apk',
+            'task_id': 'Klg1GnM4TAqeBqgz-FOdtw',
+            'target_artifact': 'public/build/target.apk',
         },
         'armv7_v15': {
-            'task_id': 'TJtktGqCRmyyWKH_YJ4sBQ',
-            'target_artifact': 'public/build/fennec-51.0a2.multi.android-arm.apk',
+            'task_id': 'TYPNy9Q0QvSNiijBjGVdhA',
+            'target_artifact': 'public/build/target.apk',
         },
     }
 
@@ -69,8 +98,8 @@ def test_filter_right_artifacts():
             'x86': {
                 'task_id': 'fake',
                 'all_artifacts': [
-                    {'name': 'public/build/fennec-51.0a2.multi.android-i386.apk'},
-                    {'name': 'public/build/fennec-51.0a2.multi.android-i386-2.apk'},
+                    {'name': 'public/build/target.apk'},
+                    {'name': 'public/build/target.apk'},
                 ],
             },
         })
@@ -80,11 +109,8 @@ def test_filter_right_artifacts():
             'x86': {
                 'task_id': 'fake',
                 'all_artifacts': [
-                    {'name': 'public/build/firefox-51.0a2.multi.win32.exe'},
-                    {'name': 'public/build/fennec-51.0a1.multi.android-i386.apk'},  # Nightly
-                    {'name': 'public/build/fennec-51.0a2.en-US.android-i386.apk'},  # single-locale aurora
-                    {'name': 'public/build/fennec-51.0b1.multi.android-i386.apk'},
-                    {'name': 'public/build/fennec-51.0.multi.android-i386.apk'},
+                    {'name': 'public/build/target.exe'},
+                    {'name': 'public/build/target.dmg'},
                 ],
             },
         })
@@ -93,23 +119,23 @@ def test_filter_right_artifacts():
 def test_craft_artifact_urls():
     data = {
         'x86': {
-            'task_id': 'NtEQavvdQRaYQGryyJMPnA',
-            'target_artifact': 'public/build/fennec-51.0a2.multi.android-i386.apk',
+            'task_id': 'Klg1GnM4TAqeBqgz-FOdtw',
+            'target_artifact': 'public/build/target.apk',
         },
         'armv7_v15': {
-            'task_id': 'TJtktGqCRmyyWKH_YJ4sBQ',
-            'target_artifact': 'public/build/fennec-51.0a2.multi.android-arm.apk',
+            'task_id': 'TYPNy9Q0QvSNiijBjGVdhA',
+            'target_artifact': 'public/build/target.apk',
         },
     }
 
     assert _craft_artifact_urls(data) == {
         'x86': {
-            'task_id': 'NtEQavvdQRaYQGryyJMPnA',
-            'artifact_url': 'https://queue.taskcluster.net/v1/task/NtEQavvdQRaYQGryyJMPnA/artifacts/public/build/fennec-51.0a2.multi.android-i386.apk',
+            'task_id': 'Klg1GnM4TAqeBqgz-FOdtw',
+            'artifact_url': 'https://queue.taskcluster.net/v1/task/Klg1GnM4TAqeBqgz-FOdtw/artifacts/public/build/target.apk',
         },
         'armv7_v15': {
-            'task_id': 'TJtktGqCRmyyWKH_YJ4sBQ',
-            'artifact_url': 'https://queue.taskcluster.net/v1/task/TJtktGqCRmyyWKH_YJ4sBQ/artifacts/public/build/fennec-51.0a2.multi.android-arm.apk',
+            'task_id': 'TYPNy9Q0QvSNiijBjGVdhA',
+            'artifact_url': 'https://queue.taskcluster.net/v1/task/TYPNy9Q0QvSNiijBjGVdhA/artifacts/public/build/target.apk',
         },
     }
 
@@ -148,19 +174,19 @@ def test_craft_task_data(monkeypatch):
 
     tasks_data_per_architecture = {
         'x86': {
-            'task_id': 'NtEQavvdQRaYQGryyJMPnA',
-            'artifact_url': 'https://queue.taskcluster.net/v1/task/NtEQavvdQRaYQGryyJMPnA/artifacts/public/build/fennec-51.0a2.multi.android-i386.apk',
+            'task_id': 'Klg1GnM4TAqeBqgz-FOdtw',
+            'artifact_url': 'https://queue.taskcluster.net/v1/task/Klg1GnM4TAqeBqgz-FOdtw/artifacts/public/build/target.apk',
         },
         'armv7_v15': {
-            'task_id': 'TJtktGqCRmyyWKH_YJ4sBQ',
-            'artifact_url': 'https://queue.taskcluster.net/v1/task/TJtktGqCRmyyWKH_YJ4sBQ/artifacts/public/build/fennec-51.0a2.multi.android-arm.apk',
+            'task_id': 'TYPNy9Q0QvSNiijBjGVdhA',
+            'artifact_url': 'https://queue.taskcluster.net/v1/task/TYPNy9Q0QvSNiijBjGVdhA/artifacts/public/build/target.apk',
         },
     }
 
-    assert _craft_task_data(config, 'mozilla-aurora', 'ae3b6bfb810476141647ad681b796ed118062412', '10259', tasks_data_per_architecture) == {
+    assert _craft_task_data(config, 'mozilla-aurora', '6b063631a7d3ffd5dc2b621852e4d8ac8758ef99', '10715', tasks_data_per_architecture) == {
         'created': UTC_NOW,
         'deadline': UTC_NOW + datetime.timedelta(hours=1),
-        'dependencies': ['NtEQavvdQRaYQGryyJMPnA', 'TJtktGqCRmyyWKH_YJ4sBQ'],
+        'dependencies': ['Klg1GnM4TAqeBqgz-FOdtw', 'TYPNy9Q0QvSNiijBjGVdhA'],
         'extra': {
             'treeherder': {
                 'reason': 'Because this is a test',
@@ -184,8 +210,8 @@ def test_craft_task_data(monkeypatch):
         },
         'payload': {
             'apks': {
-                'x86': 'https://queue.taskcluster.net/v1/task/NtEQavvdQRaYQGryyJMPnA/artifacts/public/build/fennec-51.0a2.multi.android-i386.apk',
-                'armv7_v15':  'https://queue.taskcluster.net/v1/task/TJtktGqCRmyyWKH_YJ4sBQ/artifacts/public/build/fennec-51.0a2.multi.android-arm.apk',
+                'x86': 'https://queue.taskcluster.net/v1/task/Klg1GnM4TAqeBqgz-FOdtw/artifacts/public/build/target.apk',
+                'armv7_v15':  'https://queue.taskcluster.net/v1/task/TYPNy9Q0QvSNiijBjGVdhA/artifacts/public/build/target.apk',
             },
             'dry_run': True,
             'google_play_track': 'alpha',
@@ -194,8 +220,8 @@ def test_craft_task_data(monkeypatch):
         'requires': 'all-completed',
         'retries': 0,
         'routes': [
-            'tc-treeherder.v2.mozilla-aurora.ae3b6bfb810476141647ad681b796ed118062412.10259',
-            'tc-treeherder-stage.v2.mozilla-aurora.ae3b6bfb810476141647ad681b796ed118062412.10259',
+            'tc-treeherder.v2.mozilla-aurora.6b063631a7d3ffd5dc2b621852e4d8ac8758ef99.10715',
+            'tc-treeherder-stage.v2.mozilla-aurora.6b063631a7d3ffd5dc2b621852e4d8ac8758ef99.10715',
         ],
         'scopes': ['project:releng:googleplay:aurora'],
         'workerType': 'test-worker',
@@ -206,7 +232,7 @@ def test_fetch_task_ids_per_achitecture(monkeypatch):
     from fennec_aurora_task_creator import tc_index
 
     monkeypatch.setattr(
-        tc_index, 'get_task_id', lambda _, __, ___, architecture: 'NtEQavvdQRaYQGryyJMPnA' if architecture == 'android-x86' else 'TJtktGqCRmyyWKH_YJ4sBQ'
+        tc_index, 'get_task_id', lambda _, __, ___, architecture: 'Klg1GnM4TAqeBqgz-FOdtw' if architecture == 'android-x86' else 'TYPNy9Q0QvSNiijBjGVdhA'
     )
 
     config = {
@@ -216,9 +242,9 @@ def test_fetch_task_ids_per_achitecture(monkeypatch):
         }
     }
 
-    assert _fetch_task_ids_per_achitecture(config, 'mozilla-aurora', 'ae3b6bfb810476141647ad681b796ed118062412') == {
-        'x86': {'task_id': 'NtEQavvdQRaYQGryyJMPnA'},
-        'armv7_v15': {'task_id': 'TJtktGqCRmyyWKH_YJ4sBQ'},
+    assert _fetch_task_ids_per_achitecture(config, 'mozilla-aurora', '6b063631a7d3ffd5dc2b621852e4d8ac8758ef99') == {
+        'x86': {'task_id': 'Klg1GnM4TAqeBqgz-FOdtw'},
+        'armv7_v15': {'task_id': 'TYPNy9Q0QvSNiijBjGVdhA'},
     }
 
 
@@ -228,17 +254,17 @@ def test_fetch_artifacts(monkeypatch):
     monkeypatch.setattr(tc_queue, 'fetch_artifacts_list', lambda _: ['dummy_data'])
 
     data = {
-        'x86': {'task_id': 'NtEQavvdQRaYQGryyJMPnA'},
-        'armv7_v15': {'task_id': 'TJtktGqCRmyyWKH_YJ4sBQ'},
+        'x86': {'task_id': 'Klg1GnM4TAqeBqgz-FOdtw'},
+        'armv7_v15': {'task_id': 'TYPNy9Q0QvSNiijBjGVdhA'},
     }
 
     assert _fetch_artifacts(data) == {
         'x86': {
-            'task_id': 'NtEQavvdQRaYQGryyJMPnA',
+            'task_id': 'Klg1GnM4TAqeBqgz-FOdtw',
             'all_artifacts': ['dummy_data'],
         },
         'armv7_v15': {
-            'task_id': 'TJtktGqCRmyyWKH_YJ4sBQ',
+            'task_id': 'TYPNy9Q0QvSNiijBjGVdhA',
             'all_artifacts': ['dummy_data'],
         },
     }
@@ -270,7 +296,7 @@ def test_publish_if_possible(monkeypatch):
           'x86': 'android-x86-opt',
           'armv7_v15': 'android-api-15-opt'
         },
-        'taskcluster_index_pattern': 'gecko.v2.{repository}.revision.{revision}.mobile-l10n.{architecture}.multi',
+        'taskcluster_index_pattern': 'gecko.v2.{repository}.signed-nightly.nightly.revision.{revision}.mobile.{architecture}',
     }
 
     UTC_NOW = datetime.datetime.utcnow()
@@ -286,7 +312,7 @@ def test_publish_if_possible(monkeypatch):
         assert payload == {
             'created': UTC_NOW,
             'deadline': UTC_NOW + datetime.timedelta(hours=1),
-            'dependencies': ['Gzjb-lzpQiy2Cszfol-pdA', 'N9KWjt0QTCmqsp_3_wWwEA'],
+            'dependencies': ['Klg1GnM4TAqeBqgz-FOdtw', 'TYPNy9Q0QvSNiijBjGVdhA'],
             'extra': {
                 'treeherder': {
                     'reason': 'Because this is a test',
@@ -310,8 +336,8 @@ def test_publish_if_possible(monkeypatch):
             },
             'payload': {
                 'apks': {
-                    'x86': 'https://queue.taskcluster.net/v1/task/Gzjb-lzpQiy2Cszfol-pdA/artifacts/public/build/fennec-51.0a2.multi.android-i386.apk',
-                    'armv7_v15':  'https://queue.taskcluster.net/v1/task/N9KWjt0QTCmqsp_3_wWwEA/artifacts/public/build/fennec-51.0a2.multi.android-arm.apk',
+                    'x86':       'https://queue.taskcluster.net/v1/task/Klg1GnM4TAqeBqgz-FOdtw/artifacts/public/build/target.apk',
+                    'armv7_v15': 'https://queue.taskcluster.net/v1/task/TYPNy9Q0QvSNiijBjGVdhA/artifacts/public/build/target.apk',
                 },
                 'dry_run': True,
                 'google_play_track': 'alpha',
@@ -320,8 +346,8 @@ def test_publish_if_possible(monkeypatch):
             'requires': 'all-completed',
             'retries': 0,
             'routes': [
-                'tc-treeherder.v2.mozilla-aurora.ae3b6bfb810476141647ad681b796ed118062412.10259',
-                'tc-treeherder-stage.v2.mozilla-aurora.ae3b6bfb810476141647ad681b796ed118062412.10259',
+                'tc-treeherder.v2.mozilla-aurora.6b063631a7d3ffd5dc2b621852e4d8ac8758ef99.10715',
+                'tc-treeherder-stage.v2.mozilla-aurora.6b063631a7d3ffd5dc2b621852e4d8ac8758ef99.10715',
             ],
             'scopes': ['project:releng:googleplay:aurora'],
             'workerType': 'test-worker',
@@ -333,7 +359,7 @@ def test_publish_if_possible(monkeypatch):
     from fennec_aurora_task_creator import tc_queue
     monkeypatch.setattr(tc_queue, 'create_task', assert_create_task_is_called_with_right_arguments)
 
-    publish_if_possible(config, 'mozilla-aurora', 'ae3b6bfb810476141647ad681b796ed118062412')
+    publish_if_possible(config, 'mozilla-aurora', '6b063631a7d3ffd5dc2b621852e4d8ac8758ef99')
 
 
 def test_publish_raises_error_if_job_exists_in_treeherder(monkeypatch):
@@ -350,4 +376,4 @@ def test_publish_raises_error_if_job_exists_in_treeherder(monkeypatch):
     monkeypatch.setattr(treeherder, 'does_job_already_exist', lambda _, __, ___, tier: True)
 
     with pytest.raises(TreeherderJobAlreadyExistError):
-        publish_if_possible(config, 'mozilla-aurora', 'ae3b6bfb810476141647ad681b796ed118062412')
+        publish_if_possible(config, 'mozilla-aurora', '6b063631a7d3ffd5dc2b621852e4d8ac8758ef99')

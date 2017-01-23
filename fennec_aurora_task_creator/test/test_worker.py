@@ -16,31 +16,31 @@ from fennec_aurora_task_creator.worker import _dispatch, start_message_queue_wor
 @pytest.mark.asyncio
 async def test_dispatch(monkeypatch):
     body = json.dumps({
-        'workerGroup': 'buildbot',
+        'workerGroup': 'signing-linux-v1',
         'status': {
-            'deadline': '2016-10-15T10:02:46.210Z',
-            'schedulerId': '-',
+            'deadline': '2017-02-11T08:41:28.419Z',
+            'schedulerId': 'gecko-level-3',
             'retriesLeft': 5,
             'state': 'completed',
-            'expires': '2017-10-15T10:02:46.210Z',
+            'expires': '2018-02-10T08:41:28.419Z',
             'runs': [{
-                'takenUntil': '2016-10-15T09:24:35.326Z',
-                'workerGroup': 'buildbot',
-                'reasonResolved': 'completed',
                 'runId': 0,
-                'reasonCreated': 'scheduled',
-                'scheduled': '2016-10-15T09:02:47.598Z',
                 'state': 'completed',
-                'resolved': '2016-10-15T09:04:37.798Z',
-                'started': '2016-10-15T09:02:48.922Z',
-                'workerId': 'buildbot',
+                'reasonCreated': 'scheduled',
+                'reasonResolved': 'completed',
+                'workerGroup': 'signing-linux-v1',
+                'workerId': 'signing-linux-4',
+                'takenUntil': '2017-02-10T09:54:56.358Z',
+                'scheduled': '2017-02-10T09:34:52.833Z',
+                'started': '2017-02-10T09:34:56.446Z',
+                'resolved': '2017-02-10T09:35:29.971Z'
             }],
-            'taskGroupId': 'QbosbKzTTB2E08IHTAtTfw',
-            'provisionerId': 'null-provisioner',
-            'taskId': 'QbosbKzTTB2E08IHTAtTfw',
-            'workerType': 'buildbot',
+            'taskGroupId': 'GZItMiWuRbaAy5W4WgpwjQ',
+            'provisionerId': 'scriptworker-prov-v1',
+            'taskId': 'Klg1GnM4TAqeBqgz-FOdtw',
+            'workerType': 'signing-linux-v1',
         },
-        'workerId': 'buildbot',
+        'workerId': 'signing-linux-4',
         'runId': 0,
         'version': 1,
     })
@@ -48,37 +48,73 @@ async def test_dispatch(monkeypatch):
     body = body.encode(encoding='utf-8')
 
     monkeypatch.setattr(tc_queue, 'fetch_task_definition', lambda _: {
-        'provisionerId': 'null-provisioner',
-        'workerType': 'buildbot',
-        'schedulerId': '-',
-        'taskGroupId': 'Yd4lmOUIS9u1k0_siw8zlg',
-        'dependencies': [],
+        'provisionerId': 'scriptworker-prov-v1',
+        'workerType': 'signing-linux-v1',
+        'schedulerId': 'gecko-level-3',
+        'taskGroupId': 'GZItMiWuRbaAy5W4WgpwjQ',
+        'dependencies': ['HZ-ZPFIfR7iNJhKMzB4FHw'],
         'requires': 'all-completed',
         'routes': [
-            'index.gecko.v2.mozilla-aurora.revision.d9cfe58247e85c05ad98a4e60045bbdd62e0ec2b.mobile-l10n.android-api-15-opt.multi',
-            'index.gecko.v2.mozilla-aurora.pushdate.2016.11.08.20161108081244.mobile-l10n.android-api-15-opt.multi',
-            'index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi',
-            'index.buildbot.branches.mozilla-aurora.android-api-15',
-            'index.buildbot.revisions.d9cfe58247e85c05ad98a4e60045bbdd62e0ec2b.mozilla-aurora.android-api-15',
+            'index.gecko.v2.mozilla-aurora.signed-nightly.nightly.latest.mobile.android-x86-opt',
+            'index.gecko.v2.mozilla-aurora.signed-nightly.nightly.2017.02.10.revision.6b063631a7d3ffd5dc2b621852e4d8ac8758ef99.mobile.android-x86-opt',
+            'index.gecko.v2.mozilla-aurora.signed-nightly.nightly.2017.02.10.latest.mobile.android-x86-opt',
+            'index.gecko.v2.mozilla-aurora.signed-nightly.nightly.revision.6b063631a7d3ffd5dc2b621852e4d8ac8758ef99.mobile.android-x86-opt',
+            'index.gecko.v2.mozilla-aurora.signed-nightly.revision.6b063631a7d3ffd5dc2b621852e4d8ac8758ef99.mobile-l10n.android-x86-opt.en-US',
+            'index.gecko.v2.mozilla-aurora.signed-nightly.pushdate.2017.02.10.20170210084116.mobile-l10n.android-x86-opt.en-US',
+            'index.gecko.v2.mozilla-aurora.signed-nightly.latest.mobile-l10n.android-x86-opt.en-US',
         ],
         'priority': 'normal',
         'retries': 5,
-        'created': '2016-11-08T10:09:26.312Z',
-        'deadline': '2016-11-08T11:09:26.312Z',
-        'expires': '2017-11-08T11:09:26.312Z',
-        'scopes': [],
-        'payload': {},
-        'metadata': {
-            'owner': 'mshal@mozilla.com',
-            'source': 'http://hg.mozilla.org/build/mozharness/',
-            'name': 'Buildbot/mozharness S3 uploader',
-            'description': 'Upload outputs of buildbot/mozharness builds to S3'
+        'created': '2017-02-10T08:41:28.419Z',
+        'deadline': '2017-02-11T08:41:28.419Z',
+        'expires': '2018-02-10T08:41:28.419Z',
+        'scopes': [
+            'project:releng:signing:cert:nightly-signing',
+            'project:releng:signing:format:jar',
+        ],
+        'payload': {
+            'maxRunTime': 3600,
+            'upstreamArtifacts': [{
+                'paths': [
+                  'public/build/target.apk',
+                  'public/build/en-US/target.apk',
+                ],
+                'formats': [
+                  'jar'
+                ],
+                'taskId': 'HZ-ZPFIfR7iNJhKMzB4FHw',
+                'taskType': 'build',
+            }]
         },
-        'tags': {},
+        'metadata': {
+            'owner': 'release@mozilla.com',
+            'source': 'https://hg.mozilla.org/releases/mozilla-aurora//file/6b063631a7d3ffd5dc2b621852e4d8ac8758ef99/taskcluster/ci/build-signing',
+            'description': 'Android 4.2 x86 Nightly \
+([Treeherder push](https://treeherder.mozilla.org/#/jobs?repo=mozilla-aurora&revision=6b063631a7d3ffd5dc2b621852e4d8ac8758ef99)) \
+Signing ([Treeherder push](https://treeherder.mozilla.org/#/jobs?repo=mozilla-aurora&revision=6b063631a7d3ffd5dc2b621852e4d8ac8758ef99))',
+            'name': 'signing-android-x86-nightly/opt'
+        },
+        'tags': {
+            'createdForUser': 'release@mozilla.com'
+        },
         'extra': {
-            'index': {
-                'rank': 1478592764
-            }
+            'treeherderEnv': [
+              'production',
+              'staging'
+            ],
+            'treeherder': {
+              'jobKind': 'build',
+              'groupSymbol': 'tc',
+              'collection': {
+                'opt': True
+              },
+              'machine': {
+                'platform': 'android-4-2-x86'
+              },
+              'groupName': 'Executed by TaskCluster',
+              'tier': 1,
+              'symbol': 'Ns'
+             }
         }
     })
 

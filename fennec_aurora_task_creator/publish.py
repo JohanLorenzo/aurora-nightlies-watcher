@@ -11,7 +11,7 @@ from fennec_aurora_task_creator.exceptions import NoApkFoundError, MoreThanOneAp
 
 logger = logging.getLogger(__name__)
 
-FENNEC_AURORA_APK_REGEX = re.compile(r'^public/build/fennec-\d+\.0a2\.multi\.android.+\.apk$')
+FENNEC_AURORA_APK_REGEX = re.compile(r'^public/build/target\.apk$')
 
 
 with open(os.path.join(PROJECT_DIRECTORY, 'source_url.txt')) as f:
