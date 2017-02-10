@@ -38,7 +38,7 @@ DEFAULT_PROVIDED_CONFIG = {
         'x86': 'android-x86-opt',
         'armv7_v15': 'android-api-15-opt',
     },
-    'taskcluster_index_pattern': 'gecko.v2.{repository}.revision.{revision}.mobile-l10n.{architecture}.multi',
+    'taskcluster_index_pattern': 'gecko.v2.{repository}.signed-nightly.nightly.revision.{revision}.mobile.{architecture}',
     'task': {
         'name': 'Google Play Publisher',
         'description': 'Publishes Aurora builds to Google Play Store',
@@ -58,8 +58,8 @@ DEFAULT_PROVIDED_CONFIG = {
         'exchanges': [{
             'path': 'exchange/taskcluster-queue/v1/task-completed',
             'routing_keys': [
-                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi',
-                'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi',
+                'route.index.gecko.v2.mozilla-aurora.signed-nightly.nightly.latest.mobile.android-api-15-opt',
+                'route.index.gecko.v2.mozilla-aurora.signed-nightly.nightly.latest.mobile.android-x86-opt',
             ]
         }],
     },
@@ -156,8 +156,8 @@ def test_generate_final_config_object_fulfills_default_values():
     assert final_config['pulse']['exchanges'] == [{
         'path': 'exchange/taskcluster-queue/v1/task-completed',
         'routing_keys': [
-            'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-api-15-opt.multi',
-            'route.index.gecko.v2.mozilla-aurora.latest.mobile-l10n.android-x86-opt.multi'
+            'route.index.gecko.v2.mozilla-aurora.signed-nightly.nightly.latest.mobile.android-api-15-opt',
+            'route.index.gecko.v2.mozilla-aurora.signed-nightly.nightly.latest.mobile.android-x86-opt'
         ],
     }]
 
