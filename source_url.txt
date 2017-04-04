@@ -1,1 +1,0 @@
-https://github.com/mozilla-releng/fennec-aurora-task-creator
